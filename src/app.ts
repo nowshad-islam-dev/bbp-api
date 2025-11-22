@@ -2,9 +2,6 @@ import express from 'express';
 import cors from 'cors';
 import compression from 'compression';
 
-import { db } from './db';
-import { users } from './db/schema';
-
 const app = express();
 
 // Middlewares (packages + built ins)
@@ -24,9 +21,9 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(compression());
 
-app.get('/', async (_req, res) => {
-    const data = await db.select().from(users);
-    res.json(data);
-});
+// Routes
+import authRouter from './routes/auth';
+
+app.use('/api/auth', authRouter);
 
 export default app;
