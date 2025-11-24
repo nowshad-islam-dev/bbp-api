@@ -44,14 +44,17 @@
         "dotenv": "^17.2.3",
         "drizzle-orm": "^0.44.7",
         "express": "^5.1.0",
+        "imagekit": "^6.0.0",
         "jsonwebtoken": "^9.0.2",
         "multer": "^2.0.2",
         "mysql2": "^3.15.3",
+        "nanoid": "^5.1.6",
+        "sharp": "^0.34.5",
         "winston": "^3.18.3",
         "zod": "^4.1.12"
     },
     "lint-staged": {
-        "*.{ts,js}": [
+        "./src/**/*.{ts,js}": [
             "eslint --fix",
             "prettier --write"
         ]

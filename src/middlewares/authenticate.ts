@@ -24,3 +24,12 @@ export const authenticate = (
         throw new AppError('Authorization required', 401);
     }
 };
+
+export const isAdmin = (_req: Request, res: Response, next: NextFunction) => {
+    const user = res.locals.user as AuthPayload;
+
+    if (user.role !== 'admin') {
+        throw new AppError('Admin previleges required', 403);
+    }
+    next();
+};
