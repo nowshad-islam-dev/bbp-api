@@ -1,6 +1,6 @@
 export const imageRules = {
     news: {
-        width: 600,
+        width: 800,
         height: 600,
         quality: 80,
     },
