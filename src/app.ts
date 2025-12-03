@@ -23,7 +23,11 @@ app.use(compression());
 
 // Routes
 import authRouter from './routes/auth';
+import adminAuthRouter from './routes/adminAuth';
+import newsRouter from './routes/news';
 
 app.use('/api/auth', authRouter);
+app.use('/api/admin/auth', adminAuthRouter);
+app.use('/api/news', newsRouter);
 
 export default app;

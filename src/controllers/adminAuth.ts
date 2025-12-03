@@ -1,6 +1,6 @@
 import { RequestHandler } from 'express';
-import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 import { eq } from 'drizzle-orm';
 import { db } from '../db';
 import { users } from '../db/schema';
@@ -12,19 +12,28 @@ const JWT_EXPIRES = '15d';
 const SALT_ROUNDS = 10;
 
 // LOGIN
-export const login: RequestHandler = async (req, res) => {
+export const adminLogin: RequestHandler = async (req, res) => {
     const { email, password } = req.body as LoginInput;
 
     // Fetch user
-    const [user] = await db.select().from(users).where(eq(users.email, email));
-    if (!user) throw new AppError('Invalid credentials', 401);
+    const [admin] = await db
+        .select()
+        .from(users)
+
+        .where(eq(users.email, email))
+        .limit(1);
+
+    if (!admin || admin.role !== 'admin') {
+        throw new AppError('Unauthorized admin access', 403);
+    }
 
     // Compare passwords
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = await bcrypt.compare(password, admin.password);
+    // const isMatch = admin.password == password; // For dev only
     if (!isMatch) throw new AppError('Invalid credentials', 401);
 
     // Create token
-    const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, {
+    const token = jwt.sign({ id: admin.id, role: admin.role }, JWT_SECRET, {
         expiresIn: JWT_EXPIRES,
     });
 
@@ -36,8 +45,8 @@ export const login: RequestHandler = async (req, res) => {
     });
 };
 
-// REGISTER
-export const register: RequestHandler = async (req, res) => {
+// CREATE
+export const createAdmin: RequestHandler = async (req, res) => {
     const { firstName, lastName, email, password, phone } =
         req.body as RegisterInput;
 
@@ -60,19 +69,19 @@ export const register: RequestHandler = async (req, res) => {
             email,
             password: hashed,
             phone,
+            role: 'admin',
         })
         .$returningId();
 
-    const newUserId = result?.id;
-    if (!newUserId) {
-        throw new AppError('Error creating news', 500);
-    }
-
+    const newUserId = result.id;
     const [created] = await db
         .select()
         .from(users)
         .where(eq(users.id, newUserId));
 
+    if (!created) {
+        throw new AppError('Error creating admin', 500);
+    }
     // Create token
     const token = jwt.sign({ id: created.id, role: created.role }, JWT_SECRET, {
         expiresIn: JWT_EXPIRES,
@@ -80,7 +89,7 @@ export const register: RequestHandler = async (req, res) => {
 
     res.status(201).json({
         status: 'success',
-        message: 'User registered successfully',
+        message: 'Admin created successfully',
         data: {
             token,
             user: {
@@ -92,24 +101,5 @@ export const register: RequestHandler = async (req, res) => {
                 role: created.role,
             },
         },
-    });
-};
-
-// GET ALL USERS
-export const allUsers: RequestHandler = async (_req, res) => {
-    const result = await db
-        .select({
-            id: users.id,
-            firstName: users.firstName,
-            lastName: users.lastName,
-            email: users.email,
-            phone: users.phone,
-        })
-        .from(users);
-
-    res.json({
-        status: 'success',
-        message: 'Users fetched successfully',
-        data: result,
     });
 };
