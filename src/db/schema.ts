@@ -29,6 +29,18 @@ export const users = table(
     },
     (table) => [
         t.uniqueIndex('email_idx').on(table.email),
-        t.check('phone_length_check', sql`char_length(${table.phone}) = 11`),
+        t.check(
+            'phone_length_check',
+            sql`(${table.phone} IS NULL OR CHAR_LENGTH(${table.phone}) = 11)`,
+        ),
     ],
 );
+
+export const news = table('news', {
+    id: t.int().primaryKey().autoincrement(),
+    title: t.varchar({ length: 255 }).notNull(),
+    text: t.text().notNull(),
+    img: t.varchar({ length: 255 }),
+    createdAt: timestamps().createdAt,
+    updatedAt: timestamps().updatedAt,
+});
