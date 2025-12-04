@@ -21,9 +21,9 @@ export const users = table(
         id: t.int().primaryKey().autoincrement(),
         firstName: t.varchar('first_name', { length: 255 }).notNull(),
         lastName: t.varchar('last_name', { length: 255 }).notNull(),
-        email: t.varchar('email', { length: 255 }).notNull(),
-        password: t.varchar('password', { length: 255 }).notNull(),
-        phone: t.varchar('phone', { length: 11 }),
+        email: t.varchar({ length: 255 }).notNull(),
+        password: t.varchar({ length: 255 }).notNull(),
+        phone: t.varchar({ length: 11 }),
         // picture: t.varchar('picture', { length: 255 }),
         role: t.mysqlEnum(['volunteer', 'user', 'admin']).default('user'),
     },
@@ -43,4 +43,12 @@ export const news = table('news', {
     img: t.varchar({ length: 255 }),
     createdAt: timestamps().createdAt,
     updatedAt: timestamps().updatedAt,
+});
+
+export const events = table('events', {
+    id: t.int().primaryKey().autoincrement(),
+    title: t.varchar({ length: 255 }).notNull(),
+    excerpt: t.varchar({ length: 255 }).notNull(),
+    text: t.text().notNull(),
+    date: t.datetime({ mode: 'date' }).notNull(),
 });

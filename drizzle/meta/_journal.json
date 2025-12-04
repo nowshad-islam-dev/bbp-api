@@ -15,6 +15,13 @@
       "when": 1764097241200,
       "tag": "0001_violet_ender_wiggin",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1764741185798,
+      "tag": "0002_mushy_gideon",
+      "breakpoints": true
     }
   ]
 }
