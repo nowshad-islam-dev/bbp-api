@@ -28,3 +28,30 @@ export const createNews: RequestHandler = async (req, res) => {
     const created = await db.select().from(news).where(eq(news.id, newNewsId));
     res.status(201).json({ status: 'success', data: created });
 };
+
+export const getNewsById: RequestHandler = async (req, res) => {
+    const { newsId } = req.params;
+
+    const result = await db
+        .select()
+        .from(news)
+        .where(eq(news.id, parseInt(newsId)));
+
+    if (result.length === 0) {
+        throw new AppError('News not found', 404);
+    }
+
+    res.status(200).json({ status: 'success', data: result[0] });
+};
+
+export const deleteNews: RequestHandler = async (req, res) => {
+    const { newsId } = req.params;
+
+    const result = await db.delete(news).where(eq(news.id, parseInt(newsId)));
+
+    if (result[0].affectedRows === 0) {
+        throw new AppError('News not found', 404);
+    }
+
+    res.status(200).json({ status: 'success', message: 'News deleted' });
+};
