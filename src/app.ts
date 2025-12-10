@@ -26,10 +26,12 @@ import authRouter from './routes/auth';
 import adminAuthRouter from './routes/adminAuth';
 import newsRouter from './routes/news';
 import eventsRouter from './routes/events';
+import candidatesRouter from './routes/candidates';
 
 app.use('/api/auth', authRouter);
 app.use('/api/admin/auth', adminAuthRouter);
 app.use('/api/news', newsRouter);
 app.use('/api/events', eventsRouter);
+app.use('/api/candidates', candidatesRouter);
 
 export default app;
