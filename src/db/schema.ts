@@ -52,3 +52,13 @@ export const events = table('events', {
     text: t.text().notNull(),
     date: t.datetime({ mode: 'date' }).notNull(),
 });
+
+export const candidates = table('candidates', {
+    id: t.int().primaryKey().autoincrement(),
+    name: t.varchar({ length: 255 }).notNull(),
+    shortIntro: t.varchar('short_intro', { length: 255 }).notNull(),
+    gender: t.mysqlEnum(['male', 'female']),
+    img: t.varchar({ length: 255 }),
+    vicinity: t.varchar({ length: 255 }).notNull(),
+    topicsBrought: t.json('topics_brought').$type<string[]>().default([]),
+});
