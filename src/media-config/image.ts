@@ -4,6 +4,11 @@ export const imageRules = {
         height: 600,
         quality: 80,
     },
+    candidate: {
+        width: 600,
+        height: 600,
+        quality: 75,
+    },
     default: {
         width: 400,
         height: 400,

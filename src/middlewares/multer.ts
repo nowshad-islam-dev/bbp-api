@@ -24,7 +24,7 @@ interface BufferFile {
     mimetype: string;
 }
 
-type FolderName = 'news' | 'default';
+type FolderName = 'news' | 'candidate' | 'default';
 
 // Switch to memoryStorage to temporary store
 // images in ram before uploading to ima
