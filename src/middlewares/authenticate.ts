@@ -3,9 +3,13 @@ import jwt from 'jsonwebtoken';
 import { AppError } from '../utils/AppError';
 import { AuthPayload } from '../types/auth';
 
+export interface AuthRequest extends Request {
+    user?: { id: number; role: string };
+}
+
 export const authenticate = (
-    req: Request,
-    res: Response,
+    req: AuthRequest,
+    _res: Response,
     next: NextFunction,
 ) => {
     const token = req.headers.authorization?.split(' ')[1];
@@ -17,7 +21,7 @@ export const authenticate = (
             process.env.JWT_SECRET!,
         ) as AuthPayload;
 
-        res.locals.user = payload;
+        req.user = payload;
 
         next();
     } catch {
@@ -25,8 +29,12 @@ export const authenticate = (
     }
 };
 
-export const isAdmin = (_req: Request, res: Response, next: NextFunction) => {
-    const user = res.locals.user as AuthPayload;
+export const isAdmin = (
+    req: AuthRequest,
+    _res: Response,
+    next: NextFunction,
+) => {
+    const user = req.user as AuthPayload;
 
     if (user.role !== 'admin') {
         throw new AppError('Admin previleges required', 403);
