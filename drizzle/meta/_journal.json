@@ -29,6 +29,13 @@
       "when": 1765281377500,
       "tag": "0003_real_scarecrow",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1765816034347,
+      "tag": "0004_mushy_the_renegades",
+      "breakpoints": true
     }
   ]
 }
