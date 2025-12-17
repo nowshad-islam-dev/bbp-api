@@ -1,0 +1,41 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1763707635654,
+      "tag": "0000_charming_lilandra",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1764097241200,
+      "tag": "0001_violet_ender_wiggin",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1764741185798,
+      "tag": "0002_mushy_gideon",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1765281377500,
+      "tag": "0003_real_scarecrow",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1765816034347,
+      "tag": "0004_mushy_the_renegades",
+      "breakpoints": true
+    }
+  ]
+}

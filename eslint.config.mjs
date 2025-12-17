@@ -1,63 +1,44 @@
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
-import prettierConfig from 'eslint-config-prettier';
+import stylistic from '@stylistic/eslint-plugin';
 import prettierPlugin from 'eslint-plugin-prettier';
-import importPlugin from 'eslint-plugin-import-x';
+import prettierConfig from 'eslint-config-prettier';
 
 export default [
+    {
+        ignores: ['*.config.ts', 'drizzle.config.ts'],
+    },
     eslint.configs.recommended,
-    ...tseslint.configs.recommended,
-    importPlugin.flatConfigs.recommended,
+    ...tseslint.configs.recommendedTypeChecked,
     prettierConfig,
 
     {
-        files: ['src/**/*.{ts,tsx}'],
+        files: ['src/**/*.ts'],
         languageOptions: {
-            parser: tseslint.parser,
             parserOptions: {
-                ecmaVersion: 'latest',
-                sourceType: 'module',
+                project: true,
+                tsconfigRootDir: import.meta.dirname,
             },
         },
         plugins: {
-            '@typescript-eslint': tseslint.plugin,
-            import: importPlugin,
+            '@stylistic': stylistic,
             prettier: prettierPlugin,
         },
         rules: {
-            // Prettier formatting
-            'prettier/prettier': 'error',
-
-            // TypeScript strictness
+            '@stylistic/semi': 'error',
+            '@typescript-eslint/no-unsafe-assignment': 'error',
+            '@typescript-eslint/no-explicit-any': 'error',
+            '@typescript-eslint/explicit-function-return-type': 'off',
+            '@typescript-eslint/explicit-module-boundary-types': 'off',
+            '@typescript-eslint/restrict-template-expressions': 'off',
+            '@typescript-eslint/restrict-plus-operands': 'off',
             '@typescript-eslint/no-unused-vars': [
                 'error',
                 { argsIgnorePattern: '^_' },
             ],
-            '@typescript-eslint/no-explicit-any': 'warn',
-            '@typescript-eslint/explicit-function-return-type': 'warn',
-            '@typescript-eslint/consistent-type-imports': 'error',
 
-            // Import ordering
-            'import/order': [
-                'error',
-                {
-                    groups: [
-                        'builtin',
-                        'external',
-                        'internal',
-                        'parent',
-                        'sibling',
-                        'index',
-                    ],
-                    'newlines-between': 'always',
-                    alphabetize: { order: 'asc', caseInsensitive: true },
-                },
-            ],
-
-            // JS best practices
-            'no-console': 'warn',
-            'no-var': 'error',
-            'prefer-const': 'error',
+            // Prettier as a rule
+            'prettier/prettier': 'error',
         },
     },
 ];
