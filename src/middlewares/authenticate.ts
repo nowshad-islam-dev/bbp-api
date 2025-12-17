@@ -13,19 +13,22 @@ export const authenticate = (
     next: NextFunction,
 ) => {
     const token = req.headers.authorization?.split(' ')[1];
-    if (!token) throw new AppError('Not authorized', 401);
+    if (!token) throw new AppError('Access token not found', 401);
 
     try {
         const payload = jwt.verify(
             token,
-            process.env.JWT_SECRET!,
+            process.env.ACCESS_TOKEN_SECRET!,
         ) as AuthPayload;
 
         req.user = payload;
 
         next();
-    } catch {
-        throw new AppError('Authorization required', 401);
+    } catch (err) {
+        if (err instanceof jwt.TokenExpiredError) {
+            throw new AppError('TOKEN_EXPIRED', 401);
+        }
+        throw new AppError('Invalid access token', 401);
     }
 };
 

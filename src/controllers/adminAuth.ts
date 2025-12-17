@@ -1,14 +1,15 @@
 import { RequestHandler } from 'express';
-import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { eq } from 'drizzle-orm';
 import { db } from '../db';
 import { users } from '../db/schema';
 import { AppError } from '../utils/AppError';
 import { LoginInput, RegisterInput } from '../types/auth';
+import {
+    generateAccessToken,
+    generateRefreshToken,
+} from '../helpers/generateToken';
 
-const JWT_SECRET = process.env.JWT_SECRET!;
-const JWT_EXPIRES = '15d';
 const SALT_ROUNDS = 10;
 
 // LOGIN
@@ -33,14 +34,21 @@ export const adminLogin: RequestHandler = async (req, res) => {
     if (!isMatch) throw new AppError('Invalid credentials', 401);
 
     // Create token
-    const token = jwt.sign({ id: admin.id, role: admin.role }, JWT_SECRET, {
-        expiresIn: JWT_EXPIRES,
+    const tokenPayload = { id: admin.id, role: admin.role };
+    const accessToken = generateAccessToken(tokenPayload);
+    const refreshToken = await generateRefreshToken(tokenPayload);
+
+    res.cookie('refreshToken', refreshToken, {
+        maxAge: Number(process.env.REFRESH_TOKEN_EXPIRY!) * 1000, // in ms
+        httpOnly: true,
+        sameSite: 'strict',
+        secure: process.env.NODE_ENV === 'production',
     });
 
     res.status(200).json({
         status: 'success',
         data: {
-            token,
+            accessToken,
         },
     });
 };
@@ -82,16 +90,11 @@ export const createAdmin: RequestHandler = async (req, res) => {
     if (!created) {
         throw new AppError('Error creating admin', 500);
     }
-    // Create token
-    const token = jwt.sign({ id: created.id, role: created.role }, JWT_SECRET, {
-        expiresIn: JWT_EXPIRES,
-    });
 
     res.status(201).json({
         status: 'success',
         message: 'Admin created successfully',
         data: {
-            token,
             user: {
                 id: created.id,
                 firstName: created.firstName,

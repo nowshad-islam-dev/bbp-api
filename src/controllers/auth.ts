@@ -1,14 +1,18 @@
 import { RequestHandler } from 'express';
+import redisClient from '../redis';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { eq } from 'drizzle-orm';
 import { db } from '../db';
 import { users } from '../db/schema';
 import { AppError } from '../utils/AppError';
-import { LoginInput, RegisterInput } from '../types/auth';
+import { AuthPayload, LoginInput, RegisterInput } from '../types/auth';
+import {
+    generateAccessToken,
+    generateRefreshToken,
+    hashToken,
+} from '../helpers/generateToken';
 
-const JWT_SECRET = process.env.JWT_SECRET!;
-const JWT_EXPIRES = '15d';
 const SALT_ROUNDS = 10;
 
 // LOGIN
@@ -24,14 +28,21 @@ export const login: RequestHandler = async (req, res) => {
     if (!isMatch) throw new AppError('Invalid credentials', 401);
 
     // Create token
-    const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, {
-        expiresIn: JWT_EXPIRES,
+    const tokenPayload = { id: user.id, role: user.role };
+    const accessToken = generateAccessToken(tokenPayload);
+    const refreshToken = await generateRefreshToken(tokenPayload);
+
+    res.cookie('refreshToken', refreshToken, {
+        maxAge: Number(process.env.REFRESH_TOKEN_EXPIRY!) * 1000, // in ms
+        httpOnly: true,
+        sameSite: 'strict',
+        secure: process.env.NODE_ENV === 'production',
     });
 
     res.status(200).json({
         status: 'success',
         data: {
-            token,
+            accessToken,
         },
     });
 };
@@ -73,16 +84,10 @@ export const register: RequestHandler = async (req, res) => {
         .from(users)
         .where(eq(users.id, newUserId));
 
-    // Create token
-    const token = jwt.sign({ id: created.id, role: created.role }, JWT_SECRET, {
-        expiresIn: JWT_EXPIRES,
-    });
-
     res.status(201).json({
         status: 'success',
         message: 'User registered successfully',
         data: {
-            token,
             user: {
                 id: created.id,
                 firstName: created.firstName,
@@ -111,5 +116,92 @@ export const allUsers: RequestHandler = async (_req, res) => {
         status: 'success',
         message: 'Users fetched successfully',
         data: result,
+    });
+};
+
+// ***Note: logout and refreshToken works for both auth and adminAuth*** //
+// REFRESH TOKEN
+export const refreshToken: RequestHandler = async (req, res) => {
+    const cookies = req.cookies as { refreshToken?: string };
+    const refreshToken = cookies.refreshToken;
+
+    if (!refreshToken) {
+        throw new AppError('Refresh token missing', 401);
+    }
+
+    // Verify refresh token signature
+    let payload: AuthPayload;
+
+    try {
+        payload = jwt.verify(
+            refreshToken,
+            process.env.REFRESH_TOKEN_SECRET!,
+        ) as AuthPayload;
+    } catch {
+        throw new AppError('Invalid refresh token', 401);
+    }
+
+    const userId = payload.id;
+
+    if (!userId) {
+        throw new AppError('Invalid refresh token payload', 401);
+    }
+
+    // Fetch hashed token from Redis
+    const tokenHash = hashToken(refreshToken);
+    const redisKey = `refresh:${tokenHash}`;
+    const storedUserId = await redisClient.get(redisKey);
+
+    if (!storedUserId) {
+        throw new AppError('Refresh token expired or reused', 401);
+    }
+
+    // Enforce token ↔ user binding
+    if (storedUserId !== String(userId)) {
+        await redisClient.del(redisKey);
+        throw new AppError('Refresh token mismatch', 401);
+    }
+
+    // Rotate refresh token (invalidate old)
+    await redisClient.del(redisKey);
+
+    // Create token
+    const tokenPayload = { id: userId, role: payload.role };
+    const accessToken = generateAccessToken(tokenPayload);
+    const newRefreshToken = await generateRefreshToken(tokenPayload);
+
+    res.cookie('refreshToken', newRefreshToken, {
+        maxAge: Number(process.env.REFRESH_TOKEN_EXPIRY!) * 1000, // in ms
+        httpOnly: true,
+        sameSite: 'strict',
+        secure: process.env.NODE_ENV === 'production',
+    });
+
+    res.status(200).json({
+        status: 'success',
+        data: {
+            accessToken,
+        },
+    });
+};
+
+// LOGOUT
+export const logout: RequestHandler = async (req, res) => {
+    const cookies = req.cookies as { refreshToken?: string };
+    const refreshToken = cookies.refreshToken;
+
+    if (refreshToken) {
+        const tokenHash = hashToken(refreshToken);
+        await redisClient.del(`refresh:${tokenHash}`);
+    }
+
+    res.clearCookie('refreshToken', {
+        httpOnly: true,
+        sameSite: 'strict',
+        secure: process.env.NODE_ENV === 'production',
+    });
+
+    res.status(204).json({
+        status: 'success',
     });
 };
