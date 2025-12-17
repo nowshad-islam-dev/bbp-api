@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import compression from 'compression';
 
 const app = express();
@@ -20,6 +21,7 @@ const corsOptions: cors.CorsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(compression());
+app.use(cookieParser());
 
 // Routes
 import authRouter from './routes/auth';
