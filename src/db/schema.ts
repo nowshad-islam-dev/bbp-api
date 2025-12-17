@@ -25,7 +25,10 @@ export const users = table(
         password: t.varchar({ length: 255 }).notNull(),
         phone: t.varchar({ length: 11 }),
         // picture: t.varchar('picture', { length: 255 }),
-        role: t.mysqlEnum(['volunteer', 'user', 'admin']).default('user'),
+        role: t
+            .mysqlEnum(['volunteer', 'user', 'admin'])
+            .notNull()
+            .default('user'),
     },
     (table) => [
         t.uniqueIndex('email_idx').on(table.email),
