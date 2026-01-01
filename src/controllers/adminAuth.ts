@@ -94,15 +94,5 @@ export const createAdmin: RequestHandler = async (req, res) => {
     res.status(201).json({
         status: 'success',
         message: 'Admin created successfully',
-        data: {
-            user: {
-                id: created.id,
-                firstName: created.firstName,
-                lastName: created.lastName,
-                email: created.email,
-                phone: created.phone,
-                role: created.role,
-            },
-        },
     });
 };

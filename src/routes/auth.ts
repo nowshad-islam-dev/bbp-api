@@ -15,8 +15,8 @@ const router = express.Router();
 
 router.post('/login', validate(LoginSchema), login);
 router.post('/register', validate(RegisterSchema), register);
-router.get('/refresh-token', refreshToken);
-router.get('/logout', logout);
+router.post('/refresh-token', refreshToken);
+router.post('/logout', logout);
 router.get('/users/all', allUsers);
 
 // For dev-testing only
