@@ -4,6 +4,7 @@ export interface AppError extends Error {
     isOperational?: boolean;
     statusCode?: number;
     status?: 'fail' | 'error';
+    errors?: Record<string, string[]>;
 }
 
 export const errorHandler = (
@@ -18,7 +19,7 @@ export const errorHandler = (
         // Unexpected programming or library error
         return res.status(500).json({
             status: 'error',
-            message: 'Something went wrong on our server',
+            message: err.message ?? 'Something went wrong on our server',
         });
     }
 
@@ -26,5 +27,6 @@ export const errorHandler = (
     return res.status(err.statusCode ?? 500).json({
         status: err.status ?? 'error',
         message: err.message,
+        errors: err.errors,
     });
 };

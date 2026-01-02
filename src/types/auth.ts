@@ -20,8 +20,8 @@ const password = z
     });
 
 export const LoginSchema = z.object({
-    email: z.email(),
-    password: password,
+    email: z.email({ error: 'Invalid email or password' }),
+    password: z.string().min(8, 'Invalid email or password'),
 });
 
 export const RegisterSchema = z.object({
@@ -35,10 +35,7 @@ export const RegisterSchema = z.object({
         .max(20, { error: 'Lastname cannot be more than 20 chars long' }),
     email: z.email(),
     password: password,
-    phone: z
-        .string()
-        .length(11, { error: 'Phone numbers must have 11 digits' })
-        .optional(),
+    phone: z.string().transform((v) => (v === '' ? undefined : v)),
 });
 
 export interface AuthPayload extends JwtPayload {

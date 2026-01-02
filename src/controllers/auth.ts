@@ -79,24 +79,11 @@ export const register: RequestHandler = async (req, res) => {
         throw new AppError('Error creating news', 500);
     }
 
-    const [created] = await db
-        .select()
-        .from(users)
-        .where(eq(users.id, newUserId));
+    await db.select().from(users).where(eq(users.id, newUserId));
 
     res.status(201).json({
         status: 'success',
         message: 'User registered successfully',
-        data: {
-            user: {
-                id: created.id,
-                firstName: created.firstName,
-                lastName: created.lastName,
-                email: created.email,
-                phone: created.phone,
-                role: created.role,
-            },
-        },
     });
 };
 
