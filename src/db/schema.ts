@@ -1,7 +1,6 @@
 import { sql } from 'drizzle-orm';
 import { mysqlTable as table } from 'drizzle-orm/mysql-core';
 import * as t from 'drizzle-orm/mysql-core';
-// import { AnyMySqlColumn } from 'drizzle-orm/mysql-core';
 
 export function timestamps() {
     return {
@@ -47,6 +46,28 @@ export const news = table('news', {
     createdAt: timestamps().createdAt,
     updatedAt: timestamps().updatedAt,
 });
+
+export const comments = table(
+    'comments',
+    {
+        id: t.int().primaryKey().autoincrement(),
+        newsId: t
+            .int()
+            .notNull()
+            .references(() => news.id, { onDelete: 'cascade' }),
+        userId: t
+            .int()
+            .notNull()
+            .references(() => users.id, { onDelete: 'cascade' }),
+        content: t.text().notNull(),
+        createdAt: timestamps().createdAt,
+        updatedAt: timestamps().updatedAt,
+    },
+    (_table) => [
+        t.uniqueIndex('idx_comments_news_id').on(news.id),
+        t.uniqueIndex('idx_comments_user_id').on(users.id),
+    ],
+);
 
 export const events = table('events', {
     id: t.int().primaryKey().autoincrement(),
