@@ -4,9 +4,10 @@ import {
     createEvent,
     deleteEvent,
     getEventById,
-} from '../controllers/events';
-import { validate } from '../middlewares/validate';
-import { EventSchema } from '../types/events';
+} from '@/controllers/events';
+import { validate } from '@/middlewares/validate';
+import { EventSchema } from '@/types/events';
+import { authenticate, isAdmin } from '@/middlewares/authenticate';
 
 const router = express.Router();
 
@@ -17,9 +18,9 @@ router.get('/', getAllEvents);
 router.get('/:eventId', getEventById);
 
 // POST create event
-router.post('/', validate(EventSchema), createEvent);
+router.post('/', authenticate, isAdmin, validate(EventSchema), createEvent);
 
 // DELETE event
-router.delete('/:eventId', deleteEvent);
+router.delete('/:eventId', authenticate, isAdmin, deleteEvent);
 
 export default router;

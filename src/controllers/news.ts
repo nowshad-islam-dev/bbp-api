@@ -1,13 +1,20 @@
 import { RequestHandler } from 'express';
-import { db } from '../db';
-import { news } from '../db/schema';
-import { NewsInput } from '../types/news';
-import { AppError } from '../utils/AppError';
 import { eq } from 'drizzle-orm';
+import { db } from '@/db';
+import { news } from '@/db/schema';
+import type { NewsInput } from '@/types/news';
+import { AppError } from '@/utils/AppError';
+import { sendResponse } from '@/utils/sendResponse';
 
 export const getAllNews: RequestHandler = async (_req, res) => {
     const result = await db.select().from(news);
-    res.status(200).json({ status: 'success', data: result });
+
+    return sendResponse({
+        res,
+        statusCode: 200,
+        message: 'News fetched',
+        data: result,
+    });
 };
 
 export const createNews: RequestHandler = async (req, res) => {
@@ -25,8 +32,17 @@ export const createNews: RequestHandler = async (req, res) => {
         throw new AppError('Error creating news', 500);
     }
 
-    const created = await db.select().from(news).where(eq(news.id, newNewsId));
-    res.status(201).json({ status: 'success', data: created });
+    const [created] = await db
+        .select()
+        .from(news)
+        .where(eq(news.id, newNewsId));
+
+    return sendResponse({
+        res,
+        statusCode: 201,
+        message: 'News created',
+        data: created,
+    });
 };
 
 export const getNewsById: RequestHandler = async (req, res) => {
@@ -41,7 +57,12 @@ export const getNewsById: RequestHandler = async (req, res) => {
         throw new AppError('News not found', 404);
     }
 
-    res.status(200).json({ status: 'success', data: result[0] });
+    return sendResponse({
+        res,
+        statusCode: 200,
+        message: 'News fetched',
+        data: result[0],
+    });
 };
 
 export const deleteNews: RequestHandler = async (req, res) => {
@@ -53,5 +74,9 @@ export const deleteNews: RequestHandler = async (req, res) => {
         throw new AppError('News not found', 404);
     }
 
-    res.status(200).json({ status: 'success', message: 'News deleted' });
+    return sendResponse({
+        res,
+        statusCode: 200,
+        message: 'News deleted',
+    });
 };

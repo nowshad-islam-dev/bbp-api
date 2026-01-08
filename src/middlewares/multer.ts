@@ -4,8 +4,8 @@ import { Request, Response, NextFunction } from 'express';
 import { nanoid } from 'nanoid';
 import sharp from 'sharp';
 import ImageKit from 'imagekit';
-import { imageRules } from '../media-config/image';
-import { AppError } from '../utils/AppError';
+import { imageRules } from '@/media-config/image';
+import { AppError } from '@/utils/AppError';
 
 const client = new ImageKit({
     publicKey: process.env['IMAGEKIT_PUBLIC_KEY']!,
@@ -70,10 +70,10 @@ export const uploadSingle =
     (req: Request, res: Response, next: NextFunction) => {
         upload.single(fieldName)(req, res, (err) => {
             if (err instanceof multer.MulterError) {
-                throw new AppError(err.message, 400);
+                throw new AppError(err.message, 400, 'FILE_UPLOAD_ERROR');
             } else if (err) {
                 if (err instanceof Error) {
-                    throw new AppError(err.message, 400);
+                    throw new AppError(err.message, 400, 'FILE_UPLOAD_ERROR');
                 }
             }
 
@@ -108,7 +108,7 @@ export const uploadSingle =
                     next();
                 } catch (e: unknown) {
                     if (e instanceof Error) {
-                        throw new AppError(e.message, 500);
+                        throw new AppError(e.message, 500, 'FILE_UPLOAD_ERROR');
                     }
                     next();
                 }
@@ -121,10 +121,10 @@ export const uploadArray =
     (req: Request, res: Response, next: NextFunction) => {
         upload.array(fieldName)(req, res, (err) => {
             if (err instanceof multer.MulterError) {
-                throw new AppError(err.message, 400);
+                throw new AppError(err.message, 400, 'FILE_UPLOAD_ERROR');
             } else if (err) {
                 if (err instanceof Error) {
-                    throw new AppError(err.message, 400);
+                    throw new AppError(err.message, 400, 'FILE_UPLOAD_ERROR');
                 }
             }
 
@@ -166,7 +166,11 @@ export const uploadArray =
                 } catch (e: unknown) {
                     if (e instanceof Error) {
                         if (e instanceof Error) {
-                            throw new AppError(e.message, 500);
+                            throw new AppError(
+                                e.message,
+                                500,
+                                'FILE_UPLOAD_ERROR',
+                            );
                         }
                     }
                     next();

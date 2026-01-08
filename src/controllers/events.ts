@@ -1,13 +1,20 @@
 import { RequestHandler } from 'express';
 import { eq } from 'drizzle-orm';
-import { events } from '../db/schema';
-import { db } from '../db';
-import { AppError } from '../utils/AppError';
-import { EventInput } from '../types/events';
+import { events } from '@/db/schema';
+import { db } from '@/db';
+import { AppError } from '@/utils/AppError';
+import { sendResponse } from '@/utils/sendResponse';
+import { EventInput } from '@/types/events';
 
 export const getAllEvents: RequestHandler = async (_req, res) => {
     const result = await db.select().from(events);
-    res.status(200).json({ status: 'success', data: result });
+
+    return sendResponse({
+        res,
+        statusCode: 200,
+        message: 'Events fetched',
+        data: result,
+    });
 };
 
 export const createEvent: RequestHandler = async (req, res) => {
@@ -22,11 +29,17 @@ export const createEvent: RequestHandler = async (req, res) => {
         throw new AppError('Error creating event', 500);
     }
 
-    const created = await db
+    const [created] = await db
         .select()
         .from(events)
         .where(eq(events.id, newEventId));
-    res.status(201).json({ status: 'success', data: created });
+
+    return sendResponse({
+        res,
+        statusCode: 201,
+        message: 'Event created',
+        data: created,
+    });
 };
 
 export const getEventById: RequestHandler = async (req, res) => {
@@ -41,7 +54,12 @@ export const getEventById: RequestHandler = async (req, res) => {
         throw new AppError('Event not found', 404);
     }
 
-    res.status(200).json({ status: 'success', data: result[0] });
+    return sendResponse({
+        res,
+        statusCode: 200,
+        data: result[0],
+        message: 'News deleted',
+    });
 };
 
 export const deleteEvent: RequestHandler = async (req, res) => {
@@ -55,5 +73,9 @@ export const deleteEvent: RequestHandler = async (req, res) => {
         throw new AppError('Event not found', 404);
     }
 
-    res.status(200).json({ status: 'success', message: 'Event deleted' });
+    return sendResponse({
+        res,
+        statusCode: 200,
+        message: 'Event deleted',
+    });
 };

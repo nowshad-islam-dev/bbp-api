@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import jwt from 'jsonwebtoken';
-import { AuthPayload } from '../types/auth';
-import redisClient from '../redis';
+import { AuthPayload } from '@/types/auth';
+import redisClient from '@/redis';
 
 export const hashToken = (token: string) =>
     crypto.createHash('sha256').update(token).digest('hex');

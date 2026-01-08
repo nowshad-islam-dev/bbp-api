@@ -1,13 +1,20 @@
 import { RequestHandler } from 'express';
 import { eq } from 'drizzle-orm';
-import { candidates } from '../db/schema';
-import { db } from '../db';
-import { AppError } from '../utils/AppError';
-import { CandidateInput } from '../types/candidates';
+import { candidates } from '@/db/schema';
+import { db } from '@/db';
+import { AppError } from '@/utils/AppError';
+import { sendResponse } from '@/utils/sendResponse';
+import { CandidateInput } from '@/types/candidates';
 
 export const getAllCandidates: RequestHandler = async (_req, res) => {
     const result = await db.select().from(candidates);
-    res.status(200).json({ status: 'success', data: result });
+
+    return sendResponse({
+        res,
+        statusCode: 200,
+        data: result,
+        message: 'Candidates fetched',
+    });
 };
 
 export const createCandidate: RequestHandler = async (req, res) => {
@@ -36,11 +43,17 @@ export const createCandidate: RequestHandler = async (req, res) => {
         throw new AppError('Error creating candidate', 500);
     }
 
-    const created = await db
+    const [created] = await db
         .select()
         .from(candidates)
         .where(eq(candidates.id, newCandidateId));
-    res.status(201).json({ status: 'success', data: created });
+
+    return sendResponse({
+        res,
+        statusCode: 201,
+        data: created,
+        message: 'Candidate created',
+    });
 };
 
 export const getCandidateById: RequestHandler = async (req, res) => {
@@ -55,7 +68,12 @@ export const getCandidateById: RequestHandler = async (req, res) => {
         throw new AppError('Candidate not found', 404);
     }
 
-    res.status(200).json({ status: 'success', data: result[0] });
+    return sendResponse({
+        res,
+        statusCode: 200,
+        data: result[0],
+        message: 'Candidate fetched',
+    });
 };
 
 export const deleteCandidate: RequestHandler = async (req, res) => {
@@ -69,5 +87,9 @@ export const deleteCandidate: RequestHandler = async (req, res) => {
         throw new AppError('Candidate not found', 404);
     }
 
-    res.status(200).json({ status: 'success', message: 'Candidate deleted' });
+    return sendResponse({
+        res,
+        statusCode: 200,
+        message: 'Candidate deleted',
+    });
 };

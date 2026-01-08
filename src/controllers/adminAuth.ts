@@ -1,14 +1,15 @@
 import { RequestHandler } from 'express';
 import bcrypt from 'bcrypt';
 import { eq } from 'drizzle-orm';
-import { db } from '../db';
-import { users } from '../db/schema';
-import { AppError } from '../utils/AppError';
-import { LoginInput, RegisterInput } from '../types/auth';
+import { db } from '@/db';
+import { users } from '@/db/schema';
+import { AppError } from '@/utils/AppError';
+import { sendResponse } from '@/utils/sendResponse';
+import { LoginInput, RegisterInput } from '@/types/auth';
 import {
     generateAccessToken,
     generateRefreshToken,
-} from '../helpers/generateToken';
+} from '@/helpers/generateToken';
 
 const SALT_ROUNDS = 10;
 
@@ -25,7 +26,7 @@ export const adminLogin: RequestHandler = async (req, res) => {
         .limit(1);
 
     if (!admin || admin.role !== 'admin') {
-        throw new AppError('Unauthorized admin access', 403);
+        throw new AppError('Unauthorized admin access', 403, 'ACCESS_DENIED');
     }
 
     // Compare passwords
@@ -45,11 +46,14 @@ export const adminLogin: RequestHandler = async (req, res) => {
         secure: process.env.NODE_ENV === 'production',
     });
 
-    res.status(200).json({
-        status: 'success',
+    return sendResponse({
+        res,
+        statusCode: 200,
         data: {
             accessToken,
+            admin,
         },
+        message: 'Login success',
     });
 };
 
@@ -88,11 +92,16 @@ export const createAdmin: RequestHandler = async (req, res) => {
         .where(eq(users.id, newUserId));
 
     if (!created) {
-        throw new AppError('Error creating admin', 500);
+        throw new AppError(
+            'Error registering admin',
+            500,
+            'REGISTRATION_FAILURE',
+        );
     }
 
-    res.status(201).json({
-        status: 'success',
-        message: 'Admin created successfully',
+    return sendResponse({
+        res,
+        statusCode: 201,
+        message: 'Admin registered',
     });
 };

@@ -1,32 +1,31 @@
-import { NextFunction, Request, Response } from 'express';
-
-export interface AppError extends Error {
-    isOperational?: boolean;
-    statusCode?: number;
-    status?: 'fail' | 'error';
-    errors?: Record<string, string[]>;
-}
+import { Request, Response, NextFunction } from 'express';
+import { AppError } from '@/utils/AppError';
+import { sendError } from '@/utils/sendError';
 
 export const errorHandler = (
-    err: AppError,
+    err: Error,
     _req: Request,
     res: Response,
     _next: NextFunction,
 ): Response => {
-    console.error('❌Error:', err);
+    console.error('❌ Error:', err);
 
-    if (!err.isOperational) {
-        // Unexpected programming or library error
-        return res.status(500).json({
-            status: 'error',
-            message: err.message ?? 'Something went wrong on our server',
-        });
+    // Trusted, operational errors
+    if (err instanceof AppError && err.isOperational) {
+        return sendError(
+            res,
+            err.statusCode,
+            err.message,
+            err.code,
+            err.details,
+        );
     }
 
-    // Operational, trusted error
-    return res.status(err.statusCode ?? 500).json({
-        status: err.status ?? 'error',
-        message: err.message,
-        errors: err.errors,
-    });
+    // Unknown / programming errors
+    return sendError(
+        res,
+        500,
+        'Something went wrong on our server',
+        'INTERNAL_SERVER_ERROR',
+    );
 };

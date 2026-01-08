@@ -1,17 +1,18 @@
 import { RequestHandler } from 'express';
-import redisClient from '../redis';
+import redisClient from '@/redis';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { eq } from 'drizzle-orm';
-import { db } from '../db';
-import { users } from '../db/schema';
-import { AppError } from '../utils/AppError';
-import { AuthPayload, LoginInput, RegisterInput } from '../types/auth';
+import { db } from '@/db';
+import { users } from '@/db/schema';
+import { AppError } from '@/utils/AppError';
+import { sendResponse } from '@/utils/sendResponse';
+import { AuthPayload, LoginInput, RegisterInput } from '@/types/auth';
 import {
     generateAccessToken,
     generateRefreshToken,
     hashToken,
-} from '../helpers/generateToken';
+} from '@/helpers/generateToken';
 
 const SALT_ROUNDS = 10;
 
@@ -39,11 +40,14 @@ export const login: RequestHandler = async (req, res) => {
         secure: process.env.NODE_ENV === 'production',
     });
 
-    res.status(200).json({
-        status: 'success',
+    return sendResponse({
+        res,
+        statusCode: 200,
         data: {
             accessToken,
+            user,
         },
+        message: 'Login success',
     });
 };
 
@@ -76,14 +80,17 @@ export const register: RequestHandler = async (req, res) => {
 
     const newUserId = result?.id;
     if (!newUserId) {
-        throw new AppError('Error creating news', 500);
+        throw new AppError(
+            'Error registering user',
+            500,
+            'REGISTRATION_FAILURE',
+        );
     }
 
-    await db.select().from(users).where(eq(users.id, newUserId));
-
-    res.status(201).json({
-        status: 'success',
-        message: 'User registered successfully',
+    return sendResponse({
+        res,
+        statusCode: 201,
+        message: 'User registered',
     });
 };
 
@@ -99,10 +106,11 @@ export const allUsers: RequestHandler = async (_req, res) => {
         })
         .from(users);
 
-    res.json({
-        status: 'success',
-        message: 'Users fetched successfully',
+    return sendResponse({
+        res,
+        statusCode: 200,
         data: result,
+        message: 'Users fetched',
     });
 };
 
@@ -113,10 +121,13 @@ export const refreshToken: RequestHandler = async (req, res) => {
     const refreshToken = cookies.refreshToken;
 
     if (!refreshToken) {
-        throw new AppError('Refresh token missing', 401);
+        throw new AppError(
+            'Refresh token not found',
+            401,
+            'REFRESH_TOKEN_MISSING',
+        );
     }
 
-    // Verify refresh token signature
     let payload: AuthPayload;
 
     try {
@@ -125,47 +136,61 @@ export const refreshToken: RequestHandler = async (req, res) => {
             process.env.REFRESH_TOKEN_SECRET!,
         ) as AuthPayload;
     } catch {
-        throw new AppError('Invalid refresh token', 401);
+        throw new AppError(
+            'Invalid refresh token',
+            401,
+            'REFRESH_TOKEN_INVALID',
+        );
     }
 
     const userId = payload.id;
 
     if (!userId) {
-        throw new AppError('Invalid refresh token payload', 401);
+        throw new AppError(
+            'Invalid refresh token payload',
+            401,
+            'REFRESH_TOKEN_PAYLOAD_INVALID',
+        );
     }
 
-    // Fetch hashed token from Redis
     const tokenHash = hashToken(refreshToken);
     const redisKey = `refresh:${tokenHash}`;
     const storedUserId = await redisClient.get(redisKey);
 
     if (!storedUserId) {
-        throw new AppError('Refresh token expired or reused', 401);
+        throw new AppError(
+            'Refresh token expired or reused',
+            401,
+            'REFRESH_TOKEN_REVOKED',
+        );
     }
 
-    // Enforce token ↔ user binding
     if (storedUserId !== String(userId)) {
         await redisClient.del(redisKey);
-        throw new AppError('Refresh token mismatch', 401);
+        throw new AppError(
+            'Refresh token mismatch',
+            401,
+            'REFRESH_TOKEN_MISMATCH',
+        );
     }
 
-    // Rotate refresh token (invalidate old)
     await redisClient.del(redisKey);
 
-    // Create token
     const tokenPayload = { id: userId, role: payload.role };
     const accessToken = generateAccessToken(tokenPayload);
     const newRefreshToken = await generateRefreshToken(tokenPayload);
 
     res.cookie('refreshToken', newRefreshToken, {
-        maxAge: Number(process.env.REFRESH_TOKEN_EXPIRY!) * 1000, // in ms
+        maxAge: Number(process.env.REFRESH_TOKEN_EXPIRY!) * 1000,
         httpOnly: true,
         sameSite: 'strict',
         secure: process.env.NODE_ENV === 'production',
     });
 
-    res.status(200).json({
-        status: 'success',
+    return sendResponse({
+        res,
+        statusCode: 200,
+        message: 'Access token refreshed',
         data: {
             accessToken,
         },
@@ -188,7 +213,5 @@ export const logout: RequestHandler = async (req, res) => {
         secure: process.env.NODE_ENV === 'production',
     });
 
-    res.status(204).json({
-        status: 'success',
-    });
+    sendResponse({ res, statusCode: 204, message: 'Logout success' });
 };

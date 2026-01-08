@@ -1,16 +1,22 @@
 export class AppError extends Error {
     public readonly statusCode: number;
-    public readonly status: 'fail' | 'error';
-    public readonly isOperational: true;
+    public readonly code: string;
+    public readonly isOperational: boolean;
+    public readonly details?: unknown;
 
-    constructor(message: string, statusCode: number) {
+    constructor(
+        message: string,
+        statusCode: number,
+        code = 'APPLICATION_ERROR',
+        details?: unknown,
+    ) {
         super(message);
-        this.statusCode = statusCode;
-        this.status = `${statusCode}`.startsWith('4') ? 'fail' : 'error';
-        this.isOperational = true; // Differentiate handled vs progaramming errors
 
-        // Error.captureStackTrace(targetObject, constructorFunction)
-        // Captures a clean stack trace on the error instance
+        this.statusCode = statusCode;
+        this.code = code;
+        this.details = details;
+        this.isOperational = true;
+
         Object.setPrototypeOf(this, new.target.prototype);
         Error.captureStackTrace?.(this, this.constructor);
     }
