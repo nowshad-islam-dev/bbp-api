@@ -1,8 +1,8 @@
 import { RequestHandler } from 'express';
-import redisClient from '@/redis';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { eq } from 'drizzle-orm';
+import redisClient from '@/redis';
 import { db } from '@/db';
 import { users } from '@/db/schema';
 import { AppError } from '@/utils/AppError';

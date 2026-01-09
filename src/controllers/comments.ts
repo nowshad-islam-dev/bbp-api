@@ -4,11 +4,19 @@ import { db } from '@/db';
 import { comments } from '@/db/schema';
 import { AppError } from '@/utils/AppError';
 import { sendResponse } from '@/utils/sendResponse';
-import { CommentInput } from '@/types/comments';
 import { AuthRequest } from '@/middlewares/authenticate';
+import { CommentInput } from '@/types/comments';
+import { selectCommentSchema } from '@/types';
 
 export const getAllComments: RequestHandler = async (_req, res) => {
-    const result = await db.select().from(comments);
+    const result = await db
+        .select({
+            id: comments.id,
+            newsId: comments.id,
+            content: comments.content,
+            createdAt: comments.createdAt,
+        })
+        .from(comments);
 
     return sendResponse({
         res,
@@ -61,10 +69,12 @@ export const getCommentById: RequestHandler = async (req: AuthRequest, res) => {
         throw new AppError('Comment not found', 404);
     }
 
+    const resResult = selectCommentSchema.parse(result[0]);
+
     return sendResponse({
         res,
         statusCode: 200,
-        data: result[0],
+        data: resResult,
         message: 'Comment fetched',
     });
 };
@@ -77,10 +87,12 @@ export const getCommentsByNewsId: RequestHandler = async (req, res) => {
         .from(comments)
         .where(eq(comments.newsId, parseInt(newsId)));
 
+    const resResult = selectCommentSchema.parse(result);
+
     return sendResponse({
         res,
         statusCode: 200,
-        data: result,
+        data: resResult,
         message: 'News comments fetched',
     });
 };

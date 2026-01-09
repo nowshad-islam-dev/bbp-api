@@ -6,7 +6,7 @@ import {
     getCandidateById,
     deleteCandidate,
 } from '@/controllers/candidates';
-import { CandidateSchema } from '@/types/candidates';
+import { createCandidateSchema } from '@/types/candidates';
 import { uploadSingle } from '@/middlewares/multer';
 import { authenticate, isAdmin } from '@/middlewares/authenticate';
 
@@ -24,7 +24,7 @@ router.post(
     authenticate,
     isAdmin,
     uploadSingle('img', 'candidate'),
-    validate(CandidateSchema),
+    validate(createCandidateSchema),
     createCandidate,
 );
 

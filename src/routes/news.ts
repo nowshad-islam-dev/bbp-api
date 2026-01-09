@@ -7,7 +7,7 @@ import {
 } from '@/controllers/news';
 import { getCommentsByNewsId } from '@/controllers/comments';
 import { validate } from '@/middlewares/validate';
-import { NewsSchema } from '@/types/news';
+import { createNewsSchema } from '@/types/news';
 import { uploadSingle } from '@/middlewares/multer';
 import { authenticate, isAdmin } from '@/middlewares/authenticate';
 
@@ -28,7 +28,7 @@ router.post(
     authenticate,
     isAdmin,
     uploadSingle('img', 'news'),
-    validate(NewsSchema),
+    validate(createNewsSchema),
     createNews,
 );
 

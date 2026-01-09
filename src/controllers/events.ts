@@ -5,6 +5,7 @@ import { db } from '@/db';
 import { AppError } from '@/utils/AppError';
 import { sendResponse } from '@/utils/sendResponse';
 import { EventInput } from '@/types/events';
+import { selectEventSchema } from '@/types';
 
 export const getAllEvents: RequestHandler = async (_req, res) => {
     const result = await db.select().from(events);
@@ -34,11 +35,13 @@ export const createEvent: RequestHandler = async (req, res) => {
         .from(events)
         .where(eq(events.id, newEventId));
 
+    const resResult = selectEventSchema.parse(created);
+
     return sendResponse({
         res,
         statusCode: 201,
         message: 'Event created',
-        data: created,
+        data: resResult,
     });
 };
 
@@ -54,10 +57,12 @@ export const getEventById: RequestHandler = async (req, res) => {
         throw new AppError('Event not found', 404);
     }
 
+    const resResult = selectEventSchema.parse(result[0]);
+
     return sendResponse({
         res,
         statusCode: 200,
-        data: result[0],
+        data: resResult,
         message: 'News deleted',
     });
 };

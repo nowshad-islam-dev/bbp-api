@@ -2,12 +2,21 @@ import { RequestHandler } from 'express';
 import { eq } from 'drizzle-orm';
 import { db } from '@/db';
 import { news } from '@/db/schema';
-import type { NewsInput } from '@/types/news';
 import { AppError } from '@/utils/AppError';
 import { sendResponse } from '@/utils/sendResponse';
+import type { NewsInput } from '@/types/news';
+import { selectNewsSchema } from '@/types';
 
 export const getAllNews: RequestHandler = async (_req, res) => {
-    const result = await db.select().from(news);
+    const result = await db
+        .select({
+            id: news.id,
+            title: news.title,
+            text: news.text,
+            img: news.img,
+            createdAt: news.createdAt,
+        })
+        .from(news);
 
     return sendResponse({
         res,
@@ -37,11 +46,13 @@ export const createNews: RequestHandler = async (req, res) => {
         .from(news)
         .where(eq(news.id, newNewsId));
 
+    const resResult = selectNewsSchema.parse(created);
+
     return sendResponse({
         res,
         statusCode: 201,
         message: 'News created',
-        data: created,
+        data: resResult,
     });
 };
 
@@ -57,11 +68,13 @@ export const getNewsById: RequestHandler = async (req, res) => {
         throw new AppError('News not found', 404);
     }
 
+    const resResult = selectNewsSchema.parse(result[0]);
+
     return sendResponse({
         res,
         statusCode: 200,
         message: 'News fetched',
-        data: result[0],
+        data: resResult,
     });
 };
 

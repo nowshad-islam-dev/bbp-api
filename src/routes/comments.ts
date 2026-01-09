@@ -6,6 +6,8 @@ import {
     getCommentById,
 } from '@/controllers/comments';
 import { authenticate, isAdmin } from '@/middlewares/authenticate';
+import { validate } from '@/middlewares/validate';
+import { insertCommentSchema } from '@/types';
 
 const router = express.Router();
 
@@ -16,7 +18,12 @@ router.get('/', authenticate, isAdmin, getAllComments);
 router.get('/:commentId', authenticate, isAdmin, getCommentById);
 
 // POST create comment
-router.post('/:newsId', authenticate, createComment);
+router.post(
+    '/:newsId',
+    authenticate,
+    validate(insertCommentSchema),
+    createComment,
+);
 
 // DELETE comment
 router.delete('/:commentId', authenticate, deleteComment);

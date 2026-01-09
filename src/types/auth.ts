@@ -1,5 +1,6 @@
 import * as z from 'zod';
 import { JwtPayload } from 'jsonwebtoken';
+import { insertUserSchema } from '.';
 
 /**
  * Strong password regex:
@@ -19,24 +20,37 @@ const password = z
         error: 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
     });
 
-export const LoginSchema = z.object({
-    email: z.email({ error: 'Invalid email or password' }),
-    password: z.string().min(8, 'Invalid email or password'),
-});
+export const LoginSchema = insertUserSchema
+    .pick({
+        email: true,
+        password: true,
+    })
+    .extend({
+        email: z.email({ error: 'Invalid email or password' }),
+        password: z.string().min(8, 'Invalid email or password'),
+    });
 
-export const RegisterSchema = z.object({
-    firstName: z
-        .string()
-        .min(2, { error: 'Firstname must be at least 2 chars long' })
-        .max(20, { error: 'Firstname cannot be more than 20 chars long' }),
-    lastName: z
-        .string()
-        .min(2, { error: 'Lastname must be at least 2 chars long' })
-        .max(20, { error: 'Lastname cannot be more than 20 chars long' }),
-    email: z.email(),
-    password: password,
-    phone: z.string().transform((v) => (v === '' ? undefined : v)),
-});
+export const createUserSchema = insertUserSchema
+    .pick({
+        firstName: true,
+        lastName: true,
+        email: true,
+        phone: true,
+        password: true,
+    })
+    .extend({
+        firstName: z
+            .string()
+            .min(2, { error: 'Firstname must be at least 2 chars long' })
+            .max(20, { error: 'Firstname cannot be more than 20 chars long' }),
+        lastName: z
+            .string()
+            .min(2, { error: 'Lastname must be at least 2 chars long' })
+            .max(20, { error: 'Lastname cannot be more than 20 chars long' }),
+        email: z.email(),
+        password: password,
+        phone: z.string().transform((v) => (v === '' ? undefined : v)),
+    });
 
 export interface AuthPayload extends JwtPayload {
     id: number;
@@ -44,4 +58,4 @@ export interface AuthPayload extends JwtPayload {
 }
 
 export type LoginInput = z.infer<typeof LoginSchema>;
-export type RegisterInput = z.infer<typeof RegisterSchema>;
+export type RegisterInput = z.infer<typeof createUserSchema>;

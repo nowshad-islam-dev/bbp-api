@@ -5,9 +5,19 @@ import { db } from '@/db';
 import { AppError } from '@/utils/AppError';
 import { sendResponse } from '@/utils/sendResponse';
 import { CandidateInput } from '@/types/candidates';
+import { selectCandidateSchema } from '@/types';
 
 export const getAllCandidates: RequestHandler = async (_req, res) => {
-    const result = await db.select().from(candidates);
+    const result = await db
+        .select({
+            id: candidates.id,
+            name: candidates.name,
+            shortIntro: candidates.shortIntro,
+            vicinity: candidates.vicinity,
+            topicsBrought: candidates.topicsBrought,
+            img: candidates.img,
+        })
+        .from(candidates);
 
     return sendResponse({
         res,
@@ -48,10 +58,12 @@ export const createCandidate: RequestHandler = async (req, res) => {
         .from(candidates)
         .where(eq(candidates.id, newCandidateId));
 
+    const resResult = selectCandidateSchema.parse(created);
+
     return sendResponse({
         res,
         statusCode: 201,
-        data: created,
+        data: resResult,
         message: 'Candidate created',
     });
 };
@@ -68,10 +80,12 @@ export const getCandidateById: RequestHandler = async (req, res) => {
         throw new AppError('Candidate not found', 404);
     }
 
+    const resResult = selectCandidateSchema.parse(result[0]);
+
     return sendResponse({
         res,
         statusCode: 200,
-        data: result[0],
+        data: resResult,
         message: 'Candidate fetched',
     });
 };

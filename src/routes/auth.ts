@@ -8,13 +8,13 @@ import {
     refreshToken,
     register,
 } from '@/controllers/auth';
-import { LoginSchema, RegisterSchema } from '@/types/auth';
+import { LoginSchema, createUserSchema } from '@/types/auth';
 import { uploadSingle } from '@/middlewares/multer';
 
 const router = express.Router();
 
 router.post('/login', validate(LoginSchema), login);
-router.post('/register', validate(RegisterSchema), register);
+router.post('/register', validate(createUserSchema), register);
 router.post('/refresh-token', refreshToken);
 router.post('/logout', logout);
 router.get('/users', authenticate, isAdmin, allUsers);
