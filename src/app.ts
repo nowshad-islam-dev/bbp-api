@@ -30,7 +30,9 @@ import newsRouter from './routes/news';
 import eventsRouter from './routes/events';
 import candidatesRouter from './routes/candidates';
 import commentsRouter from './routes/comments';
+import { requestLogger } from './middlewares/requestLogger';
 
+app.use(requestLogger);
 app.use('/api/auth', authRouter);
 app.use('/api/admin/auth', adminAuthRouter);
 app.use('/api/news', newsRouter);

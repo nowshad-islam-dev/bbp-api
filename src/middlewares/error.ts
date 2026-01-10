@@ -1,14 +1,19 @@
 import { Request, Response, NextFunction } from 'express';
 import { AppError } from '@/utils/AppError';
 import { sendError } from '@/utils/sendError';
+import { logger } from '@/utils/logger';
 
 export const errorHandler = (
     err: Error,
-    _req: Request,
+    req: Request,
     res: Response,
     _next: NextFunction,
 ): Response => {
-    console.error('❌ Error:', err);
+    logger.error(err.message, {
+        stack: err.stack,
+        path: req.originalUrl,
+        method: req.method,
+    });
 
     // Trusted, operational errors
     if (err instanceof AppError && err.isOperational) {
