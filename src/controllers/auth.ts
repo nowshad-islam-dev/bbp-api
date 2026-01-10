@@ -7,12 +7,13 @@ import { db } from '@/db';
 import { users } from '@/db/schema';
 import { AppError } from '@/utils/AppError';
 import { sendResponse } from '@/utils/sendResponse';
-import { AuthPayload, LoginInput, RegisterInput } from '@/types/auth';
 import {
     generateAccessToken,
     generateRefreshToken,
     hashToken,
 } from '@/helpers/generateToken';
+import { AuthPayload, LoginInput, RegisterInput } from '@/types/auth';
+import { selectUserSchema } from '@/types';
 
 const SALT_ROUNDS = 10;
 
@@ -40,12 +41,14 @@ export const login: RequestHandler = async (req, res) => {
         secure: process.env.NODE_ENV === 'production',
     });
 
+    const resResult = selectUserSchema.parse(user);
+
     return sendResponse({
         res,
         statusCode: 200,
         data: {
             accessToken,
-            user,
+            user: resResult,
         },
         message: 'Login success',
     });
