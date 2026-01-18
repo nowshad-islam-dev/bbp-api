@@ -2,6 +2,7 @@ import { RequestHandler } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { eq } from 'drizzle-orm';
+import ENV from '@/config/env';
 import redisClient from '@/redis';
 import { db } from '@/db';
 import { users } from '@/db/schema';
@@ -35,10 +36,10 @@ export const login: RequestHandler = async (req, res) => {
     const refreshToken = await generateRefreshToken(tokenPayload);
 
     res.cookie('refreshToken', refreshToken, {
-        maxAge: Number(process.env.REFRESH_TOKEN_EXPIRY!) * 1000, // in ms
+        maxAge: ENV.REFRESH_TOKEN_EXPIRY * 1000, // in ms
         httpOnly: true,
         sameSite: 'strict',
-        secure: process.env.NODE_ENV === 'production',
+        secure: ENV.NODE_ENV === 'production',
     });
 
     const resResult = selectUserSchema.parse(user);
@@ -136,7 +137,7 @@ export const refreshToken: RequestHandler = async (req, res) => {
     try {
         payload = jwt.verify(
             refreshToken,
-            process.env.REFRESH_TOKEN_SECRET!,
+            ENV.REFRESH_TOKEN_SECRET,
         ) as AuthPayload;
     } catch {
         throw new AppError(
@@ -184,10 +185,10 @@ export const refreshToken: RequestHandler = async (req, res) => {
     const newRefreshToken = await generateRefreshToken(tokenPayload);
 
     res.cookie('refreshToken', newRefreshToken, {
-        maxAge: Number(process.env.REFRESH_TOKEN_EXPIRY!) * 1000,
+        maxAge: ENV.REFRESH_TOKEN_EXPIRY * 1000,
         httpOnly: true,
         sameSite: 'strict',
-        secure: process.env.NODE_ENV === 'production',
+        secure: ENV.NODE_ENV === 'production',
     });
 
     return sendResponse({
@@ -213,7 +214,7 @@ export const logout: RequestHandler = async (req, res) => {
     res.clearCookie('refreshToken', {
         httpOnly: true,
         sameSite: 'strict',
-        secure: process.env.NODE_ENV === 'production',
+        secure: ENV.NODE_ENV === 'production',
     });
 
     sendResponse({ res, statusCode: 204, message: 'Logout success' });

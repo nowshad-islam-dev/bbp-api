@@ -1,6 +1,7 @@
 import { RequestHandler } from 'express';
 import bcrypt from 'bcrypt';
 import { eq } from 'drizzle-orm';
+import ENV from '@/config/env';
 import { db } from '@/db';
 import { users } from '@/db/schema';
 import { AppError } from '@/utils/AppError';
@@ -40,10 +41,10 @@ export const adminLogin: RequestHandler = async (req, res) => {
     const refreshToken = await generateRefreshToken(tokenPayload);
 
     res.cookie('refreshToken', refreshToken, {
-        maxAge: Number(process.env.REFRESH_TOKEN_EXPIRY!) * 1000, // in ms
+        maxAge: ENV.REFRESH_TOKEN_EXPIRY * 1000, // in ms
         httpOnly: true,
         sameSite: 'strict',
-        secure: process.env.NODE_ENV === 'production',
+        secure: ENV.NODE_ENV === 'production',
     });
 
     return sendResponse({

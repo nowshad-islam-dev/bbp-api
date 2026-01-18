@@ -1,11 +1,12 @@
 import 'dotenv/config';
 import app from './app';
+import ENV from './config/env';
 
 import { AppError } from './utils/AppError';
 import { errorHandler } from './middlewares/error';
 import { connectRedis } from './redis';
 
-const port = process.env.PORT ?? 3000;
+const port = ENV.PORT;
 
 // Catch all unknown routes
 app.use((req, _res, next) => {

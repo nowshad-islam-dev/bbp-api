@@ -4,13 +4,14 @@ import { Request, Response, NextFunction } from 'express';
 import { nanoid } from 'nanoid';
 import sharp from 'sharp';
 import ImageKit from 'imagekit';
+import ENV from '@/config/env';
 import { imageRules } from '@/media-config/image';
 import { AppError } from '@/utils/AppError';
 
 const client = new ImageKit({
-    publicKey: process.env['IMAGEKIT_PUBLIC_KEY']!,
-    privateKey: process.env['IMAGEKIT_PRIVATE_KEY']!,
-    urlEndpoint: process.env['IMAGEKIT_URL_ENDPOINT']!,
+    publicKey: ENV['IMAGEKIT_PUBLIC_KEY'],
+    privateKey: ENV['IMAGEKIT_PRIVATE_KEY'],
+    urlEndpoint: ENV['IMAGEKIT_URL_ENDPOINT'],
 });
 
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];

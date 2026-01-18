@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
+import ENV from '@/config/env';
 import { AppError } from '@/utils/AppError';
 import { AuthPayload } from '@/types/auth';
 
@@ -23,7 +24,7 @@ export const authenticate = (
     try {
         const payload = jwt.verify(
             token,
-            process.env.ACCESS_TOKEN_SECRET!,
+            ENV.ACCESS_TOKEN_SECRET,
         ) as AuthPayload;
 
         req.user = payload;
@@ -45,7 +46,7 @@ export const isAdmin = (
     const user = req.user as AuthPayload;
 
     if (user.role !== 'admin') {
-        throw new AppError('Admin previleges required', 403, 'ACCESS_DENIED');
+        throw new AppError('Admin privileges required', 403, 'ACCESS_DENIED');
     }
     next();
 };
