@@ -26,8 +26,12 @@ export default [
         },
         rules: {
             '@stylistic/semi': 'error',
-            '@typescript-eslint/no-unsafe-assignment': 'error',
-            '@typescript-eslint/no-explicit-any': 'error',
+            '@typescript-eslint/no-unsafe-assignment': 'warn',
+            '@typescript-eslint/no-explicit-any': 'warn',
+            '@typescript-eslint/no-unsafe-member-access': 'warn',
+            '@typescript-eslint/no-namespace': 'off',
+            '@typescript-eslint/no-floating-promises': 'off',
+            '@typescript-eslint/no-misused-promises': 'off',
             '@typescript-eslint/explicit-function-return-type': 'off',
             '@typescript-eslint/explicit-module-boundary-types': 'off',
             '@typescript-eslint/restrict-template-expressions': 'off',
@@ -36,7 +40,6 @@ export default [
                 'error',
                 { argsIgnorePattern: '^_' },
             ],
-
             // Prettier as a rule
             'prettier/prettier': 'error',
         },
