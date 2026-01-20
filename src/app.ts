@@ -1,43 +1,52 @@
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import compression from 'compression';
+import ENV from './config/env';
+import { setupSecurityHeaders } from './middlewares/securityHeader';
+import { requestId } from './middlewares/requestId';
+import { compressionMiddleware } from './middlewares/performance';
+import { loggingMiddleware } from './middlewares/loggingMiddleware';
+import { notFoundHandler } from './middlewares/notFound';
+import { errorHandler } from './middlewares/errorHandler';
 
 const app = express();
 
-// Middlewares (packages + built ins)
-const allowed = ['http://localhost:5000'];
-const corsOptions: cors.CorsOptions = {
-    origin: function (origin, callback) {
-        if (!origin || allowed.indexOf(origin) !== -1) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    credentials: true,
+const setupMiddleware = (app: express.Application) => {
+    app.use(requestId);
+    setupSecurityHeaders(app as express.Express);
+    app.use(cors({ origin: ENV.FRONTEND_URL, credentials: true }));
+    app.use(compressionMiddleware);
+    app.use(express.json({ limit: '24kb' }));
+    app.use(cookieParser());
+    app.use(loggingMiddleware);
 };
-app.use(cors(corsOptions));
-app.use(express.json());
-app.use(compression());
-app.use(cookieParser());
+
+setupMiddleware(app);
 
 // Routes
 import authRouter from './routes/auth';
-import adminAuthRouter from './routes/adminAuth';
-import newsRouter from './routes/news';
-import eventsRouter from './routes/events';
-import candidatesRouter from './routes/candidates';
-import commentsRouter from './routes/comments';
-import { requestLogger } from './middlewares/requestLogger';
+// import adminAuthRouter from './routes/adminAuth';
+// import newsRouter from './routes/news';
+// import eventsRouter from './routes/events';
+// import candidatesRouter from './routes/candidates';
+// import commentsRouter from './routes/comments';
 
-app.use(requestLogger);
 app.use('/api/auth', authRouter);
-app.use('/api/admin/auth', adminAuthRouter);
-app.use('/api/news', newsRouter);
-app.use('/api/events', eventsRouter);
-app.use('/api/candidates', candidatesRouter);
-app.use('/api/comments', commentsRouter);
+// app.use('/api/admin/auth', adminAuthRouter);
+// app.use('/api/news', newsRouter);
+// app.use('/api/events', eventsRouter);
+// app.use('/api/candidates', candidatesRouter);
+// app.use('/api/comments', commentsRouter);
+
+// Catch all unknown routes
+app.use(notFoundHandler);
+
+// Global error handler
+
+// const errorMiddleware: ErrorRequestHandler = (err, req, res, next) => {
+//     return errorHandler(err, req, res, next);
+// };
+
+app.use(errorHandler);
 
 export default app;
