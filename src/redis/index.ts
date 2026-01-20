@@ -1,19 +1,21 @@
 import { createClient } from 'redis';
+import ENV from '@/config/env';
+import { logger } from '@/config/logger';
 
 const redisClient = createClient({
-    url: process.env.REDIS_URL!,
+    url: ENV.REDIS_URL,
 });
 
 redisClient.on('error', (err) => {
-    console.error('Redis error:', err);
+    logger.error('Redis error:', err);
 });
 
 redisClient.on('connect', () => {
-    console.log('Redis socket connected');
+    logger.info('Redis socket connected');
 });
 
 redisClient.on('ready', () => {
-    console.log('Redis client ready');
+    logger.info('Redis client ready');
 });
 
 export async function connectRedis() {
@@ -24,9 +26,9 @@ export async function connectRedis() {
             throw new Error(`Unexpected Redis PING response: ${pong}`);
         }
 
-        console.log('Redis connection verified');
+        logger.info('Redis connection verified');
     } catch (err) {
-        console.error('Failed to connect to Redis:', err);
+        logger.error('Failed to connect to Redis:', err);
         process.exit(1);
     }
 }

@@ -6,7 +6,8 @@ import sharp from 'sharp';
 import ImageKit from 'imagekit';
 import ENV from '@/config/env';
 import { imageRules } from '@/media-config/image';
-import { AppError } from '@/utils/AppError';
+import { AppError } from '@/utils/appError';
+import { ErrorCode } from '@/utils/errorCode';
 
 const client = new ImageKit({
     publicKey: ENV['IMAGEKIT_PUBLIC_KEY'],
@@ -71,10 +72,18 @@ export const uploadSingle =
     (req: Request, res: Response, next: NextFunction) => {
         upload.single(fieldName)(req, res, (err) => {
             if (err instanceof multer.MulterError) {
-                throw new AppError(err.message, 400, 'FILE_UPLOAD_ERROR');
+                throw new AppError(
+                    err.message,
+                    400,
+                    ErrorCode.FILE_UPLOAD_ERROR,
+                );
             } else if (err) {
                 if (err instanceof Error) {
-                    throw new AppError(err.message, 400, 'FILE_UPLOAD_ERROR');
+                    throw new AppError(
+                        err.message,
+                        400,
+                        ErrorCode.FILE_UPLOAD_ERROR,
+                    );
                 }
             }
 
@@ -109,7 +118,11 @@ export const uploadSingle =
                     next();
                 } catch (e: unknown) {
                     if (e instanceof Error) {
-                        throw new AppError(e.message, 500, 'FILE_UPLOAD_ERROR');
+                        throw new AppError(
+                            e.message,
+                            500,
+                            ErrorCode.FILE_UPLOAD_ERROR,
+                        );
                     }
                     next();
                 }
@@ -122,10 +135,18 @@ export const uploadArray =
     (req: Request, res: Response, next: NextFunction) => {
         upload.array(fieldName)(req, res, (err) => {
             if (err instanceof multer.MulterError) {
-                throw new AppError(err.message, 400, 'FILE_UPLOAD_ERROR');
+                throw new AppError(
+                    err.message,
+                    400,
+                    ErrorCode.FILE_UPLOAD_ERROR,
+                );
             } else if (err) {
                 if (err instanceof Error) {
-                    throw new AppError(err.message, 400, 'FILE_UPLOAD_ERROR');
+                    throw new AppError(
+                        err.message,
+                        400,
+                        ErrorCode.FILE_UPLOAD_ERROR,
+                    );
                 }
             }
 
@@ -170,7 +191,7 @@ export const uploadArray =
                             throw new AppError(
                                 e.message,
                                 500,
-                                'FILE_UPLOAD_ERROR',
+                                ErrorCode.FILE_UPLOAD_ERROR,
                             );
                         }
                     }
