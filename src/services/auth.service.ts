@@ -155,7 +155,7 @@ export class AuthService {
     async adminLogin(email: string, password: string) {
         const userData = await AuthService.getUser(email);
 
-        if (!userData || userData.role === 'admin') {
+        if (!userData || userData.role !== 'admin') {
             logger.warn({
                 message: 'Insufficient permissions',
                 context: 'AuthService.adminLogin',
