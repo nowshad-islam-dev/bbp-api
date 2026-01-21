@@ -25,15 +25,13 @@ setupMiddleware(app);
 
 // Routes
 import authRouter from './routes/auth.route';
-// import adminAuthRouter from './routes/adminAuth';
-// import newsRouter from './routes/news';
+import newsRouter from './routes/news.route';
 // import eventsRouter from './routes/events';
 // import candidatesRouter from './routes/candidates';
 // import commentsRouter from './routes/comments';
 
 app.use('/api/auth', authRouter);
-// app.use('/api/admin/auth', adminAuthRouter);
-// app.use('/api/news', newsRouter);
+app.use('/api/news', newsRouter);
 // app.use('/api/events', eventsRouter);
 // app.use('/api/candidates', candidatesRouter);
 // app.use('/api/comments', commentsRouter);
