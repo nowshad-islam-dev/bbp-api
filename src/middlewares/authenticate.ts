@@ -5,7 +5,7 @@ import { AppError } from '@/utils/appError';
 import { ErrorCode } from '@/utils/errorCode';
 import { logger } from '@/config/logger';
 
-interface JwtPayload {
+export interface JwtPayload {
     userId: string;
     role: string;
 }

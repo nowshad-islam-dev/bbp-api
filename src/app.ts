@@ -24,7 +24,7 @@ const setupMiddleware = (app: express.Application) => {
 setupMiddleware(app);
 
 // Routes
-import authRouter from './routes/auth';
+import authRouter from './routes/auth.route';
 // import adminAuthRouter from './routes/adminAuth';
 // import newsRouter from './routes/news';
 // import eventsRouter from './routes/events';
