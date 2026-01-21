@@ -12,7 +12,8 @@
         "format": "prettier --write .",
         "prepare": "husky",
         "db:migrate": "pnpm drizzle-kit migrate",
-        "db:generate": "pnpm drizzle-kit generate"
+        "db:generate": "pnpm drizzle-kit generate",
+        "db:studio": "pnpm drizzle-kit studio"
     },
     "keywords": [],
     "author": "",
