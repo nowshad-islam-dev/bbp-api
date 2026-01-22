@@ -10,6 +10,7 @@ const envSchema = z.object({
     NODE_ENV: z.enum(['development', 'production', 'test']),
     DATABASE_URL: z.url(),
     REDIS_URL: z.url(),
+    SERVER_URL: z.url(),
     FRONTEND_URL: z.url(),
     ACCESS_TOKEN_SECRET: z.string().min(32),
     ACCESS_TOKEN_EXPIRY: z.coerce.number(),
@@ -18,6 +19,15 @@ const envSchema = z.object({
     IMAGEKIT_PUBLIC_KEY: z.string().startsWith('public'),
     IMAGEKIT_PRIVATE_KEY: z.string().startsWith('private'),
     IMAGEKIT_URL_ENDPOINT: z.url(),
+    EMAIL_VERIFICATION_TOKEN_EXPIRY: z.coerce.number(),
+    GMAIL:
+        process.env.NODE_ENV === 'development'
+            ? z.email()
+            : z.email().optional(),
+    GOOGLE_APP_PASSWORD:
+        process.env.NODE_ENV === 'development'
+            ? z.string()
+            : z.string().optional(),
     SMTP_HOST:
         process.env.NODE_ENV === 'development'
             ? z.string().optional()
