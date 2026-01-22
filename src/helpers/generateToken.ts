@@ -27,13 +27,24 @@ export const generateRefreshToken = async (user: JwtPayload) => {
     );
 
     const tokenHash = hashToken(token);
-
     await redisClient.set(`refresh:${tokenHash}`, String(user.userId), {
         expiration: {
             type: 'EX',
             value: ENV.REFRESH_TOKEN_EXPIRY,
         },
     });
-
     return token;
+};
+
+export const generateEmailVerificationToken = async (userId: string) => {
+    const rawToken = crypto.randomBytes(32).toString('hex');
+    const hashedToken = hashToken(rawToken);
+
+    await redisClient.set(`email_verify:${hashedToken}`, userId, {
+        expiration: {
+            type: 'EX',
+            value: ENV.EMAIL_VERIFICATION_TOKEN_EXPIRY,
+        },
+    });
+    return rawToken;
 };
