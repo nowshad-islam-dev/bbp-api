@@ -11,6 +11,13 @@ export class AuthController extends BaseController {
         super();
     }
 
+    verifyEmail = (req: Request, res: Response, next: NextFunction): void => {
+        this.handleRequest(req, res, next, async () => {
+            const token = req.query['token'] as string;
+            return await this.authService.verifyEmail(token);
+        });
+    };
+
     signup = (req: Request, res: Response, next: NextFunction): void => {
         this.handleRequest(req, res, next, async () => {
             const { firstName, lastName, email, password, phone } =

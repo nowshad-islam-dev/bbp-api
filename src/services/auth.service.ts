@@ -9,20 +9,58 @@ import { AppError } from '@/utils/appError';
 import { ErrorCode } from '@/utils/errorCode';
 import {
     generateAccessToken,
+    generateEmailVerificationToken,
     generateRefreshToken,
     hashToken,
 } from '@/helpers/generateToken';
 import { selectUserSchema } from '@/validators';
 import { JwtPayload } from '@/middlewares/authenticate';
 import { logger } from '@/config/logger';
+import { EmailService } from './email.service';
 
 export class AuthService {
+    private emailService: EmailService;
+    constructor() {
+        this.emailService = new EmailService();
+    }
     private static async getUser(email: string) {
         const [result] = await db
             .select()
             .from(users)
             .where(eq(users.email, email));
         return result;
+    }
+
+    async verifyEmail(token: string) {
+        const hashedToken = hashToken(token);
+        const redisKey = `email_verify:${hashedToken}`;
+        const userId = await redisClient.get(redisKey);
+
+        if (!userId) {
+            throw new AppError(
+                'Invalid verification token',
+                400,
+                ErrorCode.INVALID_TOKEN,
+            );
+        }
+
+        const [user] = await db
+            .select()
+            .from(users)
+            .where(eq(users.id, Number(userId)));
+
+        if (!user) {
+            throw new AppError(
+                'Invalid verification token',
+                400,
+                ErrorCode.INVALID_TOKEN,
+            );
+        }
+
+        await db
+            .update(users)
+            .set({ emailVerified: true, emailVerifiedAt: new Date() });
+        return { message: 'Email verified successfully' };
     }
 
     async signup(
@@ -45,13 +83,31 @@ export class AuthService {
         // Hash password
         const hashed = await bcrypt.hash(password, 10);
         // Insert new user
-        await db.insert(users).values({
-            firstName,
-            lastName,
-            email,
-            password: hashed,
-            phone,
-        });
+        const [result] = await db
+            .insert(users)
+            .values({
+                firstName,
+                lastName,
+                email,
+                password: hashed,
+                phone,
+            })
+            .$returningId();
+
+        const [user] = await db
+            .select()
+            .from(users)
+            .where(eq(users.id, result.id));
+
+        const verificationToken = await generateEmailVerificationToken(
+            String(user.id),
+        );
+
+        await this.emailService.sendVerificationEmail(
+            user.email,
+            user.firstName,
+            verificationToken,
+        );
 
         return null;
     }

@@ -21,7 +21,7 @@ const password = z
         'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
     );
 
-export const LoginSchema = z.object({
+export const loginSchema = z.object({
     body: z.object({
         email: z.email(),
         password: z.string().min(8),
@@ -35,6 +35,12 @@ export const createUserSchema = z.object({
         email: z.email(),
         password: password,
         phone: z.string().transform((v) => (v === '' ? undefined : v)),
+    }),
+});
+
+export const verifyEmailSchema = z.object({
+    query: z.object({
+        token: z.string().min(1, 'Verification token is required'),
     }),
 });
 
