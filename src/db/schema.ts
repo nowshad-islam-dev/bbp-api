@@ -23,6 +23,8 @@ export const users = table(
         email: t.varchar({ length: 255 }).notNull(),
         password: t.varchar({ length: 255 }).notNull(),
         phone: t.varchar({ length: 11 }),
+        emailVerified: t.boolean('email_verified').default(false),
+        emailVerifiedAt: t.timestamp('email_verified_at'),
         // picture: t.varchar('picture', { length: 255 }),
         role: t
             .mysqlEnum(['volunteer', 'user', 'admin'])
