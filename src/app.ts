@@ -8,6 +8,8 @@ import { compressionMiddleware } from './middlewares/performance';
 import { loggingMiddleware } from './middlewares/loggingMiddleware';
 import { notFoundHandler } from './middlewares/notFound';
 import { errorHandler } from './middlewares/errorHandler';
+import { apiLimiter, authLimiter } from './middlewares/rateLimiter';
+import { cache } from './middlewares/cache';
 
 const app = express();
 
@@ -19,6 +21,10 @@ const setupMiddleware = (app: express.Application) => {
     app.use(express.json({ limit: '24kb' }));
     app.use(cookieParser());
     app.use(loggingMiddleware);
+
+    // Rate limiting
+    app.use('/api/auth', authLimiter);
+    app.use('/api', apiLimiter);
 };
 
 setupMiddleware(app);
@@ -36,15 +42,13 @@ app.use('/api/news', newsRouter);
 // app.use('/api/candidates', candidatesRouter);
 // app.use('/api/comments', commentsRouter);
 
+// Cache middleware
+app.use('/api/news', cache({ duration: 300 }));
+
 // Catch all unknown routes
 app.use(notFoundHandler);
 
 // Global error handler
-
-// const errorMiddleware: ErrorRequestHandler = (err, req, res, next) => {
-//     return errorHandler(err, req, res, next);
-// };
-
 app.use(errorHandler);
 
 export default app;
