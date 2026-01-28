@@ -17,5 +17,5 @@ export interface EventBody {
     title: string;
     excerpt: string;
     text: string;
-    date: string;
+    date: Date;
 }
