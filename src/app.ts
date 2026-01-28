@@ -33,13 +33,13 @@ setupMiddleware(app);
 import authRouter from './routes/auth.route';
 import newsRouter from './routes/news.route';
 // import eventsRouter from './routes/events';
-// import candidatesRouter from './routes/candidates';
+import candidatesRouter from './routes/candidates.route';
 // import commentsRouter from './routes/comments';
 
 app.use('/api/auth', authRouter);
 app.use('/api/news', newsRouter);
 // app.use('/api/events', eventsRouter);
-// app.use('/api/candidates', candidatesRouter);
+app.use('/api/candidates', candidatesRouter);
 // app.use('/api/comments', commentsRouter);
 
 // Cache middleware
