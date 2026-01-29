@@ -12,8 +12,6 @@ const newsController = new NewsController(newsService);
 
 router.get('/', newsController.getAll);
 router.get('/:newsId', newsController.getNewsById);
-// GET comments for news
-// router.get('/:newsId/comments', getCommentsByNewsId);
 router.post(
     '/',
     requireAuth,

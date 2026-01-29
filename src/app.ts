@@ -34,17 +34,18 @@ import authRouter from './routes/auth.route';
 import newsRouter from './routes/news.route';
 import eventsRouter from './routes/events.route';
 import candidatesRouter from './routes/candidates.route';
-// import commentsRouter from './routes/comments';
+import commentsRouter from './routes/comments.route';
 
 app.use('/api/auth', authRouter);
 app.use('/api/news', newsRouter);
 app.use('/api/events', eventsRouter);
 app.use('/api/candidates', candidatesRouter);
-// app.use('/api/comments', commentsRouter);
+app.use('/api/comments', commentsRouter);
 
 // Cache middleware
 app.use('/api/news', cache({ duration: 300 }));
 app.use('/api/events', cache({ duration: 300 }));
+app.use('/api/candidates', cache({ duration: 300 }));
 
 // Catch all unknown routes
 app.use(notFoundHandler);
