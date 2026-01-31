@@ -2,6 +2,7 @@ import app from './app';
 import ENV from './config/env';
 import { logger } from './config/logger';
 import { connectRedis, disconnectRedis } from './redis';
+import { seedDB } from './db/seed';
 
 let server: ReturnType<typeof app.listen>;
 
@@ -9,6 +10,8 @@ async function startServer() {
     try {
         logger.info('Connecting to redis');
         await connectRedis();
+
+        await seedDB();
 
         server = app.listen(ENV.PORT, () => {
             logger.info(`Server running at http://localhost:${ENV.PORT}`);
