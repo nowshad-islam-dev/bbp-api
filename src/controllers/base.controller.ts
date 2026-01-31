@@ -9,8 +9,8 @@ export abstract class BaseController {
         action: () => Promise<any>,
     ) {
         try {
-            const result = await action();
-            ApiResponse.success(res, result);
+            const { result, meta } = await action();
+            ApiResponse.success(res, result, meta);
         } catch (err) {
             next(err);
         }
