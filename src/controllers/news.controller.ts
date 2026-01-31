@@ -9,16 +9,21 @@ export class NewsController extends BaseController {
     }
 
     getAll = (req: Request, res: Response, next: NextFunction): void => {
+        const {
+            page = '1',
+            pageSize = '20',
+            tag = 'all',
+        } = req.query as Record<string, string>;
         this.handleRequest(req, res, next, async () => {
-            return await this.newsService.getAll();
+            return await this.newsService.getAll(page, pageSize, tag);
         });
     };
 
     create = (req: Request, res: Response, next: NextFunction): void => {
         this.handleRequest(req, res, next, async () => {
-            const { title, text } = req.body as NewsBody;
+            const { title, text, tag } = req.body as NewsBody;
             const img = res.locals.fileUrl as string | undefined;
-            return await this.newsService.create(title, text, img);
+            return await this.newsService.create(title, text, tag, img);
         });
     };
 

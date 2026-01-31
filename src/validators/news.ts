@@ -8,7 +8,14 @@ export const createNewsSchema = z.object({
     }),
 });
 
+// export const getNewsSchema = z.object({
+//     params: {
+//         // page: z.string().
+//     }
+// })
+
 export interface NewsBody {
     title: string;
     text: string;
+    tag?: string;
 }
