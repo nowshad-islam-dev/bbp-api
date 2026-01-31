@@ -8,7 +8,7 @@ import { selectEventSchema } from '@/validators';
 export class EventService {
     async getAll() {
         const result = await db.select().from(events);
-        return result;
+        return { result };
     }
 
     async create(title: string, excerpt: string, text: string, date: Date) {
@@ -25,7 +25,7 @@ export class EventService {
             .where(eq(events.id, result.id));
 
         const parsedEvent = selectEventSchema.parse(created);
-        return parsedEvent;
+        return { result: parsedEvent };
     }
 
     async getEventById(eventId: string) {
@@ -39,7 +39,7 @@ export class EventService {
         }
 
         const parsedEvent = selectEventSchema.parse(result);
-        return parsedEvent;
+        return { result: parsedEvent };
     }
 
     async deleteEventById(eventId: string) {
@@ -50,6 +50,6 @@ export class EventService {
         if (result.affectedRows === 0) {
             throw new AppError('Event not found', 404, ErrorCode.NOT_FOUND);
         }
-        return null;
+        return { result: null };
     }
 }

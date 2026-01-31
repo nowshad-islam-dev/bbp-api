@@ -18,7 +18,7 @@ export class CandidatesService {
             })
             .from(candidates);
 
-        return result;
+        return { result };
     }
 
     async create(
@@ -48,7 +48,7 @@ export class CandidatesService {
             .where(eq(candidates.id, result.id));
 
         const parsedCandidate = selectCandidateSchema.parse(created);
-        return parsedCandidate;
+        return { result: parsedCandidate };
     }
 
     async getCandidateById(candidateId: string) {
@@ -62,7 +62,7 @@ export class CandidatesService {
         }
 
         const parsedCandidate = selectCandidateSchema.parse(result);
-        return parsedCandidate;
+        return { result: parsedCandidate };
     }
 
     async deleteCandidateById(candidateId: string) {
@@ -73,6 +73,6 @@ export class CandidatesService {
         if (result.affectedRows === 0) {
             throw new AppError('Candidate not found', 404, ErrorCode.NOT_FOUND);
         }
-        return null;
+        return { result: null };
     }
 }

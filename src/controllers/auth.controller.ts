@@ -35,30 +35,35 @@ export class AuthController extends BaseController {
     login = (req: Request, res: Response, next: NextFunction): void => {
         this.handleRequest(req, res, next, async () => {
             const { email, password } = req.body as LoginBody;
-            const { accessToken, refreshToken, user } =
-                await this.authService.login(email, password);
+            const { result } = await this.authService.login(email, password);
+            const { accessToken, refreshToken, user } = result;
+
             res.cookie('refreshToken', refreshToken, {
                 maxAge: ENV.REFRESH_TOKEN_EXPIRY * 1000, // in ms
                 httpOnly: true,
                 sameSite: 'strict',
                 secure: ENV.NODE_ENV === 'production',
             });
-            return { accessToken, user };
+            return { result: { accessToken, user } };
         });
     };
 
     adminLogin = (req: Request, res: Response, next: NextFunction): void => {
         this.handleRequest(req, res, next, async () => {
             const { email, password } = req.body as LoginBody;
-            const { accessToken, refreshToken, user } =
-                await this.authService.adminLogin(email, password);
+            const { result } = await this.authService.adminLogin(
+                email,
+                password,
+            );
+            const { accessToken, refreshToken, user } = result;
+
             res.cookie('refreshToken', refreshToken, {
                 maxAge: ENV.REFRESH_TOKEN_EXPIRY * 1000, // in ms
                 httpOnly: true,
                 sameSite: 'strict',
                 secure: ENV.NODE_ENV === 'production',
             });
-            return { accessToken, user };
+            return { result: { accessToken, user } };
         });
     };
 
@@ -92,15 +97,17 @@ export class AuthController extends BaseController {
                     ErrorCode.INVALID_TOKEN,
                 );
             }
-            const { accessToken, newRefreshToken } =
+            const { result } =
                 await this.authService.refreshToken(refreshToken);
+            const { accessToken, newRefreshToken } = result;
+
             res.cookie('refreshToken', newRefreshToken, {
                 maxAge: ENV.REFRESH_TOKEN_EXPIRY * 1000, // in ms
                 httpOnly: true,
                 sameSite: 'strict',
                 secure: ENV.NODE_ENV === 'production',
             });
-            return { accessToken };
+            return { result: { accessToken } };
         });
     };
 
@@ -121,7 +128,7 @@ export class AuthController extends BaseController {
                 sameSite: 'strict',
                 secure: ENV.NODE_ENV === 'production',
             });
-            return null;
+            return { result: null };
         });
     };
 }

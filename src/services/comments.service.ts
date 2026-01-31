@@ -16,7 +16,7 @@ export class CommentService {
             })
             .from(comments);
 
-        return result;
+        return { result };
     }
 
     async create(content: string, newsId: string, userId: string) {
@@ -35,7 +35,7 @@ export class CommentService {
             .where(eq(comments.id, result.id));
 
         const parsedComment = selectCommentSchema.parse(created);
-        return parsedComment;
+        return { result: parsedComment };
     }
 
     async getCommentByIdAndUserId(commentId: string, userId: string) {
@@ -54,7 +54,7 @@ export class CommentService {
         }
 
         const parsedComment = selectCommentSchema.parse(result);
-        return parsedComment;
+        return { result: parsedComment };
     }
 
     async getCommentsByNewsId(newsId: string) {
@@ -68,7 +68,7 @@ export class CommentService {
             .from(comments)
             .where(eq(comments.newsId, parseInt(newsId)));
 
-        return result;
+        return { result };
     }
 
     async deleteUserCommentById(commentId: string, userId: string) {
@@ -84,5 +84,6 @@ export class CommentService {
         if (result[0].affectedRows === 0) {
             throw new AppError('Comment not found', 404, ErrorCode.NOT_FOUND);
         }
+        return { result: null };
     }
 }

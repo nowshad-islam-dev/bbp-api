@@ -60,7 +60,7 @@ export class AuthService {
         await db
             .update(users)
             .set({ emailVerified: true, emailVerifiedAt: new Date() });
-        return { message: 'Email verified successfully' };
+        return { result: null, message: 'Email verified successfully' };
     }
 
     async signup(
@@ -109,7 +109,7 @@ export class AuthService {
             verificationToken,
         );
 
-        return null;
+        return { result: null };
     }
 
     async login(email: string, password: string) {
@@ -141,7 +141,7 @@ export class AuthService {
 
         const parsedUser = selectUserSchema.parse(user);
 
-        return { accessToken, refreshToken, user: parsedUser };
+        return { result: { accessToken, refreshToken, user: parsedUser } };
     }
 
     async refreshToken(refreshToken: string) {
@@ -200,7 +200,7 @@ export class AuthService {
         const accessToken = generateAccessToken(tokenPayload);
         const newRefreshToken = await generateRefreshToken(tokenPayload);
 
-        return { accessToken, newRefreshToken };
+        return { result: { accessToken, newRefreshToken } };
     }
 
     async logout(refreshToken: string) {
@@ -224,11 +224,9 @@ export class AuthService {
                 ErrorCode.FORBIDDEN,
             );
         }
-        const { accessToken, refreshToken, user } = await this.login(
-            email,
-            password,
-        );
-        return { accessToken, refreshToken, user };
+        const { result } = await this.login(email, password);
+        const { accessToken, refreshToken, user } = result;
+        return { result: { accessToken, refreshToken, user } };
     }
 
     async createAdmin(
@@ -260,6 +258,6 @@ export class AuthService {
             role: 'admin',
         });
 
-        return null;
+        return { result: null };
     }
 }
