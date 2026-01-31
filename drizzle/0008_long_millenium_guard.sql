@@ -1,0 +1,1 @@
+ALTER TABLE `news` MODIFY COLUMN `tags` json DEFAULT ('["all"]');

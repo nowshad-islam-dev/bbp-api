@@ -49,6 +49,26 @@ export const news = table('news', {
     updatedAt: timestamps().updatedAt,
 });
 
+export const tags = table('tags', {
+    id: t.int().primaryKey().autoincrement(),
+    name: t.varchar({ length: 50 }).notNull().unique(),
+});
+
+export const newsToTags = table(
+    'news_to_tags',
+    {
+        newsId: t
+            .int()
+            .notNull()
+            .references(() => news.id, { onDelete: 'cascade' }),
+        tagId: t
+            .int()
+            .notNull()
+            .references(() => tags.id, { onDelete: 'cascade' }),
+    },
+    (table) => [t.primaryKey({ columns: [table.newsId, table.tagId] })],
+);
+
 export const comments = table(
     'comments',
     {
