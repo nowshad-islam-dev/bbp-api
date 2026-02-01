@@ -36,7 +36,7 @@ router.post(
 );
 
 router.post('/refresh-token', authController.refreshUserToken);
-router.post('/logout', authController.logout);
+router.post('/logout', requireAuth, authController.logout);
 
 // Admin routes
 router.post(
