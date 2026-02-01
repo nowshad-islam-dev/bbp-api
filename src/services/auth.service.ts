@@ -63,6 +63,28 @@ export class AuthService {
         return { result: null, message: 'Email verified successfully' };
     }
 
+    async resendVerificationEmail(email: string) {
+        const user = await AuthService.getUser(email);
+        if (!user) {
+            throw new AppError('No user found with this email');
+        }
+        if (user.emailVerified === true) {
+            return { result: null, message: 'Email already verified' };
+        }
+
+        const verificationToken = await generateEmailVerificationToken(
+            String(user.id),
+        );
+
+        await this.emailService.sendVerificationEmail(
+            email,
+            user.firstName,
+            verificationToken,
+        );
+
+        return { result: null, message: 'Verification email resent' };
+    }
+
     async signup(
         firstName: string,
         lastName: string,
@@ -124,13 +146,13 @@ export class AuthService {
 
         // Compare passwords
         const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch)
+        if (!isMatch) {
             throw new AppError(
                 'Invalid credentials',
                 401,
                 ErrorCode.INVALID_CREDENTIALS,
             );
-
+        }
         // Create token
         const tokenPayload = {
             userId: String(user.id),
