@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { eq, gt } from 'drizzle-orm';
 import { db } from '@/db';
 import { candidates } from '@/db/schema';
 import { AppError } from '@/utils/appError';
@@ -6,7 +6,10 @@ import { selectCandidateSchema } from '@/validators';
 import { ErrorCode } from '@/utils/errorCode';
 
 export class CandidatesService {
-    async getAll() {
+    async getAll(cursor = '0', pageSize = '4') {
+        const safeCursor = parseInt(cursor);
+        const safePageSize = parseInt(pageSize);
+
         const result = await db
             .select({
                 id: candidates.id,
@@ -16,9 +19,25 @@ export class CandidatesService {
                 topicsBrought: candidates.topicsBrought,
                 img: candidates.img,
             })
-            .from(candidates);
+            .from(candidates)
+            .where(gt(candidates.id, safeCursor))
+            .orderBy(candidates.id) // Default sort order is 'asc'
+            .limit(safePageSize + 1);
 
-        return { result };
+        const hasMore = result.length > safePageSize;
+        if (hasMore) result.pop(); // Drop the extra result
+        const lastItem = result[result.length - 1];
+        const nextCursor = hasMore && lastItem ? lastItem.id : null;
+
+        return {
+            result,
+            meta: {
+                pageSize: safePageSize,
+                nextCursor,
+                // result.length < limit indicates end of data
+                hasMore,
+            },
+        };
     }
 
     async create(

@@ -4,13 +4,20 @@ import { uploadSingle } from '@/middlewares/multer';
 import { requireAuth, requireRole } from '@/middlewares/authenticate';
 import { CandidatesController } from '@/controllers/candidates.controller';
 import { CandidatesService } from '@/services/candidates.service';
-import { createCandidateSchema } from '@/validators/candidates';
+import {
+    createCandidateSchema,
+    getAllCandidateSchema,
+} from '@/validators/candidates';
 
 const router = express.Router();
 const candidatesService = new CandidatesService();
 const candidatesController = new CandidatesController(candidatesService);
 
-router.get('/', candidatesController.getAll);
+router.get(
+    '/',
+    validateRequest(getAllCandidateSchema),
+    candidatesController.getAll,
+);
 router.get('/:candidateId', candidatesController.getCandidateById);
 router.post(
     '/',

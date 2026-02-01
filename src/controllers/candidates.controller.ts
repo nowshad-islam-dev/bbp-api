@@ -9,8 +9,9 @@ export class CandidatesController extends BaseController {
     }
 
     getAll = (req: Request, res: Response, next: NextFunction): void => {
+        const { cursor, pageSize } = req.query as Record<string, string>;
         this.handleRequest(req, res, next, async () => {
-            return await this.candidatesService.getAll();
+            return await this.candidatesService.getAll(cursor, pageSize);
         });
     };
 

@@ -12,6 +12,13 @@ export const createCandidateSchema = z.object({
     }),
 });
 
+export const getAllCandidateSchema = z.object({
+    query: z.object({
+        cursor: z.coerce.number().min(0).default(0),
+        pageSize: z.coerce.number().min(1).max(100).default(20),
+    }),
+});
+
 export interface CandidateBody {
     name: string;
     shortIntro: string;
