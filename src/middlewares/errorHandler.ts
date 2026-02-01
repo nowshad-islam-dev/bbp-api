@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { AppError } from '@/utils/appError';
 import { ApiResponse } from '@/utils/apiResponse';
-import { logger } from '@/config/logger';
+// import { logger } from '@/config/logger';
 
 export const errorHandler = (
     error: Error,
@@ -9,11 +9,12 @@ export const errorHandler = (
     res: Response,
     _next: NextFunction,
 ): void => {
-    logger.error({
-        message: error.message,
-        stack: error.stack,
-        context: 'ErrorHandler',
-    });
+    // logger.error({
+    //     message: error.message,
+    //     stack: error.stack,
+    //     context: 'ErrorHandler',
+    // });
+    console.log(error);
 
     const statusCode = error instanceof AppError ? error.statusCode : 500;
     // const route = req.route?.path || req.path || '/unknown';
