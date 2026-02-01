@@ -18,6 +18,17 @@ export class AuthController extends BaseController {
         });
     };
 
+    resendVerification = (
+        req: Request,
+        res: Response,
+        next: NextFunction,
+    ): void => {
+        this.handleRequest(req, res, next, async () => {
+            const { email } = req.body as Record<string, string>;
+            return await this.authService.resendVerificationEmail(email);
+        });
+    };
+
     signup = (req: Request, res: Response, next: NextFunction): void => {
         this.handleRequest(req, res, next, async () => {
             const { firstName, lastName, email, password, phone } =

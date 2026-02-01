@@ -23,11 +23,11 @@ export class EmailService {
                 },
             });
         }
-
+        // For dev only
         this.transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
-                user: 'nowshadislam02@gmail.com',
+                user: ENV.GMAIL,
                 pass: process.env.GOOGLE_APP_PASSWORD,
             },
         });
@@ -43,17 +43,17 @@ export class EmailService {
         // Add email template precompilation
         this.precompileTemplates();
         // Add connection testing
-        this.testConnection();
+        // this.testConnection();
     }
 
-    private async testConnection() {
-        try {
-            await this.transporter.verify();
-            logger.info('Smtp connection verified');
-        } catch (err) {
-            logger.error('Failed to verify smtp connection', err);
-        }
-    }
+    // private async testConnection() {
+    //     try {
+    //         await this.transporter.verify();
+    //         logger.info('Smtp connection verified');
+    //     } catch (err) {
+    //         logger.error('Failed to verify smtp connection', err);
+    //     }
+    // }
 
     private precompileTemplates() {
         try {
@@ -80,7 +80,7 @@ export class EmailService {
                 from:
                     ENV.NODE_ENV === 'production'
                         ? this.fromAddress
-                        : process.env.GMAIL,
+                        : ENV.GMAIL,
                 to,
                 subject: 'Verify your email',
                 html: getVerificationEmailTemplate(name, verificationUrl[0]),

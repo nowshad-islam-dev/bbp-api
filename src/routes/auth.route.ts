@@ -3,10 +3,12 @@ import { validateRequest } from '@/middlewares/validateRequest';
 import { requireAuth, requireRole } from '@/middlewares/authenticate';
 import { AuthController } from '@/controllers/auth.controller';
 import { uploadSingle } from '@/middlewares/multer';
+import { verificationLimiter } from '@/middlewares/rateLimiter';
 import {
     createUserSchema,
     verifyEmailSchema,
     loginSchema,
+    resendVerificationSchema,
 } from '@/validators/auth';
 import { AuthService } from '@/services/auth.service';
 
@@ -24,6 +26,13 @@ router.get(
     '/verify-email',
     validateRequest(verifyEmailSchema),
     authController.verifyEmail,
+);
+
+router.post(
+    '/resend-verification-email',
+    verificationLimiter,
+    validateRequest(resendVerificationSchema),
+    authController.resendVerification,
 );
 
 router.post('/refresh-token', authController.refreshUserToken);

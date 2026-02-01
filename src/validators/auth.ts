@@ -43,6 +43,11 @@ export const verifyEmailSchema = z.object({
         token: z.string().min(1, 'Verification token is required'),
     }),
 });
+export const resendVerificationSchema = z.object({
+    body: z.object({
+        token: z.string().min(1, 'Verification token is required'),
+    }),
+});
 
 export interface SignupBody {
     firstName: string;
