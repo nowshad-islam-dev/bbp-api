@@ -4,13 +4,13 @@ import { NewsService } from '@/services/news.service';
 import { validateRequest } from '@/middlewares/validateRequest';
 import { uploadSingle } from '@/middlewares/multer';
 import { requireAuth, requireRole } from '@/middlewares/authenticate';
-import { createNewsSchema } from '@/validators/news';
+import { createNewsSchema, getAllNewsSchema } from '@/validators/news';
 
 const router = express.Router();
 const newsService = new NewsService();
 const newsController = new NewsController(newsService);
 
-router.get('/', newsController.getAll);
+router.get('/', validateRequest(getAllNewsSchema), newsController.getAll);
 router.get('/:newsId', newsController.getNewsById);
 router.post(
     '/',

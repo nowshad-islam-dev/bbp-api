@@ -8,11 +8,13 @@ export const createNewsSchema = z.object({
     }),
 });
 
-// export const getNewsSchema = z.object({
-//     params: {
-//         // page: z.string().
-//     }
-// })
+export const getAllNewsSchema = z.object({
+    query: z.object({
+        page: z.coerce.number().min(1).default(1),
+        pageSize: z.coerce.number().min(1).max(100).default(20),
+        tag: z.string().optional(),
+    }),
+});
 
 export interface NewsBody {
     title: string;

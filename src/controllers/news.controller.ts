@@ -8,13 +8,10 @@ export class NewsController extends BaseController {
         super();
     }
 
-    getAll = (req: Request, res: Response, next: NextFunction): void => {
-        const {
-            page = '1',
-            pageSize = '20',
-            tag = 'all',
-        } = req.query as Record<string, string>;
-        this.handleRequest(req, res, next, async () => {
+    getAll = (req: Request, _res: Response, _next: NextFunction): void => {
+        const { page, pageSize, tag } = req.query as Record<string, string>;
+        console.log(req.query);
+        this.handleRequest(req, _res, _next, async () => {
             return await this.newsService.getAll(page, pageSize, tag);
         });
     };
