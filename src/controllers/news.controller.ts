@@ -30,6 +30,11 @@ export class NewsController extends BaseController {
             return await this.newsService.getNewsById(newsId);
         });
     };
+    getLatestNews = (req: Request, res: Response, next: NextFunction): void => {
+        this.handleRequest(req, res, next, async () => {
+            return await this.newsService.getLatestNews();
+        });
+    };
 
     deleteNewsById = (
         req: Request,

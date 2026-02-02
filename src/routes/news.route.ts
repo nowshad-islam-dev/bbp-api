@@ -12,6 +12,7 @@ const newsController = new NewsController(newsService);
 
 router.get('/', validateRequest(getAllNewsSchema), newsController.getAll);
 router.get('/:newsId', newsController.getNewsById);
+router.get('/latest', newsController.getLatestNews);
 router.post(
     '/',
     requireAuth,

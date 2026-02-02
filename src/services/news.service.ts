@@ -1,4 +1,4 @@
-import { eq, count } from 'drizzle-orm';
+import { eq, count, desc } from 'drizzle-orm';
 import { db } from '@/db';
 import { news, tags, newsToTags } from '@/db/schema';
 import { AppError } from '@/utils/appError';
@@ -115,6 +115,16 @@ export class NewsService {
 
         const parsedNews = selectNewsSchema.parse(result);
         return { result: parsedNews };
+    }
+
+    async getLatestNews() {
+        const result = await db
+            .select()
+            .from(news)
+            .orderBy(desc(news.createdAt))
+            .limit(20);
+
+        return { result };
     }
 
     async deleteNewsById(newsId: string) {
