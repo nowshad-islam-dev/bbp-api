@@ -6,14 +6,17 @@
     "scripts": {
         "dev": "ts-node -r tsconfig-paths/register src/index.ts",
         "build": "tsc",
-        "start": "ts-node src/index.ts",
+        "start": "node -r tsconfig-paths/register dist/src/index.js",
         "lint": "eslint ./src --ext .ts",
         "lint:fix": "eslint ./src --ext .ts --fix",
         "format": "prettier --write .",
         "prepare": "husky",
         "db:migrate": "pnpm drizzle-kit migrate",
         "db:generate": "pnpm drizzle-kit generate",
-        "db:studio": "pnpm drizzle-kit studio"
+        "db:studio": "pnpm drizzle-kit studio",
+        "db:seed:dev": "ts-node scripts/seed.dev.ts",
+        "db:seed:prod": "node -r tsconfig-paths/register dist/scripts/seed.prod.js",
+        "db:reset": "ts-node scripts/resetDB.ts"
     },
     "keywords": [],
     "author": "",
@@ -31,6 +34,7 @@
         "@types/node": "^24.10.1",
         "@types/nodemailer": "^7.0.5",
         "drizzle-kit": "^0.31.7",
+        "drizzle-seed": "^0.3.1",
         "eslint": "^9.39.1",
         "eslint-config-prettier": "^10.1.8",
         "eslint-plugin-prettier": "^5.5.4",
