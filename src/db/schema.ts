@@ -44,15 +44,19 @@ export const news = table('news', {
     id: t.int().primaryKey().autoincrement(),
     title: t.varchar({ length: 255 }).notNull(),
     text: t.text().notNull(),
-    img: t.varchar({ length: 255 }),
+    img: t.text(),
     createdAt: timestamps().createdAt,
     updatedAt: timestamps().updatedAt,
 });
 
-export const tags = table('tags', {
-    id: t.int().primaryKey().autoincrement(),
-    name: t.varchar({ length: 50 }).notNull().unique(),
-});
+export const tags = table(
+    'tags',
+    {
+        id: t.int().primaryKey().autoincrement(),
+        name: t.varchar({ length: 50 }).notNull().unique(),
+    },
+    (table) => [t.uniqueIndex('tag_idx').on(table.name)],
+);
 
 export const newsToTags = table(
     'news_to_tags',
@@ -99,12 +103,25 @@ export const events = table('events', {
     date: t.datetime({ mode: 'date' }).notNull(),
 });
 
-export const candidates = table('candidates', {
-    id: t.int().primaryKey().autoincrement(),
-    name: t.varchar({ length: 255 }).notNull(),
-    shortIntro: t.varchar('short_intro', { length: 255 }).notNull(),
-    gender: t.mysqlEnum(['male', 'female']),
-    img: t.varchar({ length: 255 }),
-    vicinity: t.varchar({ length: 255 }).notNull(),
-    topicsBrought: t.json('topics_brought').$type<string[]>().default([]),
-});
+export const candidates = table(
+    'candidates',
+    {
+        id: t.int().primaryKey().autoincrement(),
+        name: t.varchar({ length: 100 }).notNull(),
+        img: t.text(),
+        gender: t.mysqlEnum(['male', 'female']),
+        age: t.int().notNull(),
+        type: t.mysqlEnum([
+            'possible',
+            'eligible',
+            'withdrawn',
+            'elected',
+            'nonelected',
+        ]),
+        politicalParty: t.varchar('political_party', { length: 255 }).notNull(),
+        vicinity: t.varchar({ length: 100 }).notNull(),
+        division: t.varchar({ length: 50 }).notNull(),
+        district: t.varchar({ length: 50 }).notNull(),
+    },
+    (table) => [t.check('age_check_candidate', sql`${table.age} > 24`)],
+);

@@ -71,6 +71,20 @@
       "when": 1769775585339,
       "tag": "0009_tranquil_the_renegades",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1770010946845,
+      "tag": "0010_fancy_loki",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "5",
+      "when": 1770054316244,
+      "tag": "0011_free_makkari",
+      "breakpoints": true
     }
   ]
 }
