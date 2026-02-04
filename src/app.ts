@@ -35,8 +35,10 @@ import newsRouter from './routes/news.route';
 import eventsRouter from './routes/events.route';
 import candidatesRouter from './routes/candidates.route';
 import commentsRouter from './routes/comments.route';
+import usersRouter from './routes/users.route';
 
 app.use('/api/auth', authRouter);
+app.use('/api/users', usersRouter);
 app.use('/api/news', newsRouter);
 app.use('/api/events', eventsRouter);
 app.use('/api/candidates', candidatesRouter);
