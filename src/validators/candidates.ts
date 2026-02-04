@@ -4,11 +4,19 @@ import { insertCandidateSchema } from '.';
 export const createCandidateSchema = z.object({
     body: insertCandidateSchema.extend({
         name: z.string().min(2).max(20),
-        shortIntro: z.string().min(10).max(255),
+        age: z.coerce.number().min(25).max(120),
         gender: z.enum(['male', 'female']).nullable(),
+        type: z.enum([
+            'possible',
+            'eligible',
+            'withdrawn',
+            'elected',
+            'nonelected',
+        ]),
+        politicalParty: z.string().min(2).max(100),
         vicinity: z.string().min(2).max(40),
-        // JSON fields need to be typed explicitly in Zod
-        topicsBrought: z.array(z.string()).default([]),
+        district: z.string().min(2).max(40),
+        division: z.string().min(2).max(40),
     }),
 });
 
@@ -19,10 +27,22 @@ export const getAllCandidateSchema = z.object({
     }),
 });
 
+export type Gender = 'male' | 'female';
+
+export type CandidateType =
+    | 'possible'
+    | 'eligible'
+    | 'withdrawn'
+    | 'elected'
+    | 'nonelected';
+
 export interface CandidateBody {
     name: string;
-    shortIntro: string;
-    gender?: 'male' | 'female';
+    age: string;
+    gender?: Gender;
+    type: CandidateType;
+    politicalParty: string;
     vicinity: string;
-    topicsBrought: string[];
+    district: string;
+    division: string;
 }

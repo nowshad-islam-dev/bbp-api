@@ -4,9 +4,10 @@ import { candidates } from '@/db/schema';
 import { AppError } from '@/utils/appError';
 import { selectCandidateSchema } from '@/validators';
 import { ErrorCode } from '@/utils/errorCode';
+import { Gender, CandidateType } from '@/validators/candidates';
 
 export class CandidatesService {
-    async getAll(cursor = '0', pageSize = '4') {
+    async getAll(cursor = '0', pageSize = '20') {
         const safeCursor = parseInt(cursor);
         const safePageSize = parseInt(pageSize);
 
@@ -14,9 +15,13 @@ export class CandidatesService {
             .select({
                 id: candidates.id,
                 name: candidates.name,
-                shortIntro: candidates.shortIntro,
+                age: candidates.age,
+                gender: candidates.gender,
+                type: candidates.type,
+                politicalParty: candidates.politicalParty,
                 vicinity: candidates.vicinity,
-                topicsBrought: candidates.topicsBrought,
+                district: candidates.district,
+                division: candidates.division,
                 img: candidates.img,
             })
             .from(candidates)
@@ -42,19 +47,25 @@ export class CandidatesService {
 
     async create(
         name: string,
-        shortIntro: string,
+        age: string,
+        type: CandidateType,
+        politicalParty: string,
         vicinity: string,
-        topicsBrought: string[],
-        gender?: 'male' | 'female',
+        district: string,
+        division: string,
+        gender?: Gender,
         img?: string,
     ) {
         const newCandidate = {
             name,
-            shortIntro,
-            gender,
             img,
+            gender,
+            age: parseInt(age),
+            type,
+            politicalParty,
             vicinity,
-            topicsBrought,
+            division,
+            district,
         };
         const [result] = await db
             .insert(candidates)

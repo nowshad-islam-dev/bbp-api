@@ -17,15 +17,26 @@ export class CandidatesController extends BaseController {
 
     create = (req: Request, res: Response, next: NextFunction): void => {
         this.handleRequest(req, res, next, async () => {
-            const { name, shortIntro, gender, vicinity, topicsBrought } =
-                req.body as CandidateBody;
+            const {
+                name,
+                age,
+                gender,
+                type,
+                politicalParty,
+                vicinity,
+                district,
+                division,
+            } = req.body as CandidateBody;
             const img = res.locals.fileUrl as string | undefined;
 
             return await this.candidatesService.create(
                 name,
-                shortIntro,
+                age,
+                type,
+                politicalParty,
                 vicinity,
-                topicsBrought,
+                district,
+                division,
                 gender,
                 img,
             );

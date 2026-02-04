@@ -30,17 +30,24 @@ export const selectNewsSchema = createSelectSchema(news).pick({
 
 export const insertCandidateSchema = createInsertSchema(candidates).pick({
     name: true,
-    shortIntro: true,
+    age: true,
     gender: true,
+    type: true,
+    politicalParty: true,
     vicinity: true,
-    topicsBrought: true,
+    district: true,
+    division: true,
 });
 export const selectCandidateSchema = createSelectSchema(candidates).pick({
     id: true,
     name: true,
-    shortIntro: true,
+    age: true,
+    gender: true,
+    type: true,
+    politicalParty: true,
     vicinity: true,
-    topicsBrought: true,
+    district: true,
+    division: true,
     img: true,
 });
 
