@@ -8,52 +8,40 @@ export class EmailService {
     private readonly fromAddress: string;
 
     constructor() {
-        // Production SMTP setup
-        if (ENV.NODE_ENV === 'production') {
-            this.transporter = nodemailer.createTransport({
-                host: ENV.SMTP_HOST,
-                port: ENV.SMTP_PORT,
-                secure: ENV.SMTP_PORT === 465,
-                auth: {
-                    user: ENV.SMTP_USER,
-                    pass: ENV.SMTP_PASSWORD,
-                },
-                tls: {
-                    rejectUnauthorized: true,
-                },
-            });
-        }
-        // For dev only
         this.transporter = nodemailer.createTransport({
-            service: 'gmail',
+            host: ENV.SMTP_HOST,
+            port: ENV.SMTP_PORT,
+            secure: ENV.SMTP_PORT === 465,
             auth: {
-                user: ENV.GMAIL,
-                pass: process.env.GOOGLE_APP_PASSWORD,
+                user: ENV.SMTP_USER,
+                pass: ENV.SMTP_PASSWORD,
+            },
+            tls: {
+                rejectUnauthorized: true,
             },
         });
-
         this.fromAddress =
             ENV.SMTP_FROM || 'noreply@ballot-beyond-politics.com';
 
         logger.info('Using SMTP configuration', {
             context: 'EmailService.constructor',
-            host: ENV.NODE_ENV === 'production' ? ENV.SMTP_HOST : 'Gmail',
+            host: ENV.SMTP_HOST,
         });
 
         // Add email template precompilation
         this.precompileTemplates();
         // Add connection testing
-        // this.testConnection();
+        this.testConnection();
     }
 
-    // private async testConnection() {
-    //     try {
-    //         await this.transporter.verify();
-    //         logger.info('Smtp connection verified');
-    //     } catch (err) {
-    //         logger.error('Failed to verify smtp connection', err);
-    //     }
-    // }
+    private async testConnection() {
+        try {
+            await this.transporter.verify();
+            logger.info('Smtp connection verified');
+        } catch (err) {
+            logger.error('Failed to verify smtp connection', err);
+        }
+    }
 
     private precompileTemplates() {
         try {
@@ -77,10 +65,7 @@ export class EmailService {
         try {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             const info = await this.transporter.sendMail({
-                from:
-                    ENV.NODE_ENV === 'production'
-                        ? this.fromAddress
-                        : ENV.GMAIL,
+                from: this.fromAddress,
                 to,
                 subject: 'Verify your email',
                 html: getVerificationEmailTemplate(name, verificationUrl[0]),

@@ -20,14 +20,6 @@ const envSchema = z.object({
     IMAGEKIT_PRIVATE_KEY: z.string().startsWith('private'),
     IMAGEKIT_URL_ENDPOINT: z.url(),
     EMAIL_VERIFICATION_TOKEN_EXPIRY: z.coerce.number(),
-    GMAIL:
-        process.env.NODE_ENV === 'development'
-            ? z.email()
-            : z.email().optional(),
-    GOOGLE_APP_PASSWORD:
-        process.env.NODE_ENV === 'development'
-            ? z.string()
-            : z.string().optional(),
     SMTP_HOST:
         process.env.NODE_ENV === 'development'
             ? z.string().optional()
