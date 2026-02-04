@@ -4,13 +4,15 @@ import { Request, Response, NextFunction } from 'express';
 import { nanoid } from 'nanoid';
 import sharp from 'sharp';
 import ImageKit from 'imagekit';
-import { imageRules } from '../media-config/image';
-import { AppError } from '../utils/AppError';
+import ENV from '@/config/env';
+import { imageRules } from '@/media-config/image';
+import { AppError } from '@/utils/appError';
+import { ErrorCode } from '@/utils/errorCode';
 
 const client = new ImageKit({
-    publicKey: process.env['IMAGEKIT_PUBLIC_KEY']!,
-    privateKey: process.env['IMAGEKIT_PRIVATE_KEY']!,
-    urlEndpoint: process.env['IMAGEKIT_URL_ENDPOINT']!,
+    publicKey: ENV['IMAGEKIT_PUBLIC_KEY'],
+    privateKey: ENV['IMAGEKIT_PRIVATE_KEY'],
+    urlEndpoint: ENV['IMAGEKIT_URL_ENDPOINT'],
 });
 
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
@@ -70,10 +72,18 @@ export const uploadSingle =
     (req: Request, res: Response, next: NextFunction) => {
         upload.single(fieldName)(req, res, (err) => {
             if (err instanceof multer.MulterError) {
-                throw new AppError(err.message, 400);
+                throw new AppError(
+                    err.message,
+                    400,
+                    ErrorCode.FILE_UPLOAD_ERROR,
+                );
             } else if (err) {
                 if (err instanceof Error) {
-                    throw new AppError(err.message, 400);
+                    throw new AppError(
+                        err.message,
+                        400,
+                        ErrorCode.FILE_UPLOAD_ERROR,
+                    );
                 }
             }
 
@@ -108,7 +118,11 @@ export const uploadSingle =
                     next();
                 } catch (e: unknown) {
                     if (e instanceof Error) {
-                        throw new AppError(e.message, 500);
+                        throw new AppError(
+                            e.message,
+                            500,
+                            ErrorCode.FILE_UPLOAD_ERROR,
+                        );
                     }
                     next();
                 }
@@ -121,10 +135,18 @@ export const uploadArray =
     (req: Request, res: Response, next: NextFunction) => {
         upload.array(fieldName)(req, res, (err) => {
             if (err instanceof multer.MulterError) {
-                throw new AppError(err.message, 400);
+                throw new AppError(
+                    err.message,
+                    400,
+                    ErrorCode.FILE_UPLOAD_ERROR,
+                );
             } else if (err) {
                 if (err instanceof Error) {
-                    throw new AppError(err.message, 400);
+                    throw new AppError(
+                        err.message,
+                        400,
+                        ErrorCode.FILE_UPLOAD_ERROR,
+                    );
                 }
             }
 
@@ -166,7 +188,11 @@ export const uploadArray =
                 } catch (e: unknown) {
                     if (e instanceof Error) {
                         if (e instanceof Error) {
-                            throw new AppError(e.message, 500);
+                            throw new AppError(
+                                e.message,
+                                500,
+                                ErrorCode.FILE_UPLOAD_ERROR,
+                            );
                         }
                     }
                     next();

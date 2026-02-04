@@ -1,46 +1,81 @@
 import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import { AppError } from '../utils/AppError';
-import { AuthPayload } from '../types/auth';
+import ENV from '@/config/env';
+import { AppError } from '@/utils/appError';
+import { ErrorCode } from '@/utils/errorCode';
+import { logger } from '@/config/logger';
 
-export interface AuthRequest extends Request {
-    user?: { id: number; role: string };
+export interface JwtPayload {
+    userId: string;
+    role: string;
 }
 
-export const authenticate = (
-    req: AuthRequest,
+declare global {
+    namespace Express {
+        interface Request {
+            user: JwtPayload;
+        }
+    }
+}
+
+export const requireAuth = (
+    req: Request,
     _res: Response,
     next: NextFunction,
-) => {
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) throw new AppError('Access token not found', 401);
-
+): void => {
     try {
-        const payload = jwt.verify(
-            token,
-            process.env.ACCESS_TOKEN_SECRET!,
-        ) as AuthPayload;
-
-        req.user = payload;
-
-        next();
-    } catch (err) {
-        if (err instanceof jwt.TokenExpiredError) {
-            throw new AppError('TOKEN_EXPIRED', 401);
+        const token = req.headers.authorization?.split(' ')[1];
+        if (!token) {
+            throw new AppError(
+                'No token provided',
+                401,
+                ErrorCode.UNAUTHORIZED,
+            );
         }
-        throw new AppError('Invalid access token', 401);
+        try {
+            const decoded = jwt.verify(
+                token,
+                ENV.ACCESS_TOKEN_SECRET,
+            ) as JwtPayload;
+            req.user = decoded;
+            next();
+        } catch (error) {
+            logger.warn({
+                message: 'Invalid token',
+                context: 'AuthMiddleware.requireAuth',
+                error: error instanceof Error ? error.message : 'Unknown error',
+            });
+            throw new AppError(
+                'Unauthorized - Invalid token',
+                401,
+                ErrorCode.INVALID_TOKEN,
+            );
+        }
+    } catch (error) {
+        next(error);
     }
 };
 
-export const isAdmin = (
-    req: AuthRequest,
-    _res: Response,
-    next: NextFunction,
-) => {
-    const user = req.user as AuthPayload;
-
-    if (user.role !== 'admin') {
-        throw new AppError('Admin previleges required', 403);
-    }
-    next();
+export const requireRole = (roles: string[]) => {
+    return (req: Request, _res: Response, next: NextFunction): void => {
+        try {
+            if (!req.user?.role || !roles.includes(req.user.role)) {
+                logger.warn({
+                    message: 'Insufficient permissions',
+                    context: 'AuthMiddleware.requireRole',
+                    requiredRoles: roles,
+                    userRole: req.user?.role,
+                    userId: req.user?.userId,
+                });
+                throw new AppError(
+                    'Forbidden - Insufficient permissions',
+                    403,
+                    ErrorCode.FORBIDDEN,
+                );
+            }
+            next();
+        } catch (error) {
+            next(error);
+        }
+    };
 };

@@ -1,27 +1,56 @@
-import 'dotenv/config';
 import app from './app';
+import ENV from './config/env';
+import { logger } from './config/logger';
+import { connectRedis, disconnectRedis } from './redis';
 
-import { AppError } from './utils/AppError';
-import { errorHandler } from './middlewares/error';
-import { connectRedis } from './redis';
+let server: ReturnType<typeof app.listen>;
 
-const port = process.env.PORT ?? 3000;
+async function startServer() {
+    try {
+        logger.info('Connecting to redis');
+        await connectRedis();
+        server = app.listen(ENV.PORT, () => {
+            logger.info(`Server running at http://localhost:${ENV.PORT}`);
+        });
+    } catch (err) {
+        logger.error('Failed to start server', err);
+        process.exit(1);
+    }
+}
+startServer();
 
-// Catch all unknown routes
-app.use((req, _res, next) => {
-    next(new AppError(`Cannot find ${req.originalUrl}`, 404));
-});
+let isShuttingDown = false;
 
-// Global error handler
-app.use(errorHandler);
+function shutDown(signal: string) {
+    if (isShuttingDown) return;
+    isShuttingDown = true;
 
-// Connect to redis when server starts
-async function bootstrap() {
-    await connectRedis();
+    logger.info(`Received ${signal}. Shutting down gracefully...`);
 
-    app.listen(port, () => {
-        console.log(`Server running at http://localhost:${port}`);
+    // Stop accepting new connections
+    server.close(async (err) => {
+        if (err) {
+            logger.error('Error closing server', err);
+            process.exit(1);
+        }
+
+        try {
+            logger.info('Closing Redis connection');
+            await disconnectRedis();
+            logger.info('Shutdown complete');
+            process.exit(0);
+        } catch (err) {
+            logger.error('Error during shutdown', err);
+            process.exit(1);
+        }
     });
+
+    // Force shutdown after timeout
+    setTimeout(() => {
+        logger.error('Forced shutdown after timeout');
+        process.exit(1);
+    }, 30_000);
 }
 
-void bootstrap();
+process.on('SIGTERM', shutDown);
+process.on('SIGINT', shutDown);
