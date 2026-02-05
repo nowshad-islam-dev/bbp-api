@@ -1,4 +1,4 @@
-import { eq, gt } from 'drizzle-orm';
+import { eq, gt, and } from 'drizzle-orm';
 import { db } from '@/db';
 import { candidates } from '@/db/schema';
 import { AppError } from '@/utils/appError';
@@ -7,9 +7,28 @@ import { ErrorCode } from '@/utils/errorCode';
 import { Gender, CandidateType } from '@/validators/candidates';
 
 export class CandidatesService {
-    async getAll(cursor = '0', pageSize = '20') {
+    async getAll(
+        cursor = '0',
+        pageSize = '20',
+        gender?: Gender,
+        candidateType?: CandidateType,
+        politicalParty?: string,
+        vicinity?: string,
+        district?: string,
+        division?: string,
+    ) {
         const safeCursor = parseInt(cursor);
         const safePageSize = parseInt(pageSize);
+        // Filters
+        const whereCondition = [gt(candidates.id, safeCursor)];
+        if (gender) whereCondition.push(eq(candidates.gender, gender));
+        if (candidateType)
+            whereCondition.push(eq(candidates.type, candidateType));
+        if (politicalParty)
+            whereCondition.push(eq(candidates.politicalParty, politicalParty));
+        if (vicinity) whereCondition.push(eq(candidates.vicinity, vicinity));
+        if (district) whereCondition.push(eq(candidates.district, district));
+        if (division) whereCondition.push(eq(candidates.division, division));
 
         const result = await db
             .select({
@@ -25,10 +44,12 @@ export class CandidatesService {
                 img: candidates.img,
             })
             .from(candidates)
-            .where(gt(candidates.id, safeCursor))
+            .where(and(...whereCondition))
             .orderBy(candidates.id) // Default sort order is 'asc'
             .limit(safePageSize + 1);
 
+        // Make an extra query (n + 1) to
+        // be sure more items exist or not
         const hasMore = result.length > safePageSize;
         if (hasMore) result.pop(); // Drop the extra result
         const lastItem = result[result.length - 1];
@@ -39,7 +60,6 @@ export class CandidatesService {
             meta: {
                 pageSize: safePageSize,
                 nextCursor,
-                // result.length < limit indicates end of data
                 hasMore,
             },
         };

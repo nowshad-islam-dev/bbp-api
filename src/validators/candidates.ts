@@ -24,6 +24,20 @@ export const getAllCandidateSchema = z.object({
     query: z.object({
         cursor: z.coerce.number().min(0).default(0),
         pageSize: z.coerce.number().min(1).max(100).default(20),
+        candidateType: z
+            .enum([
+                'possible',
+                'eligible',
+                'withdrawn',
+                'elected',
+                'nonelected',
+            ])
+            .optional(),
+        gender: z.enum(['male', 'female']).optional(),
+        politicalParty: z.string().min(1).optional(),
+        vicinity: z.string().min(1).optional(),
+        district: z.string().min(1).optional(),
+        division: z.string().min(1).optional(),
     }),
 });
 

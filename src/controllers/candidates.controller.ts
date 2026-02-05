@@ -1,7 +1,7 @@
 import { Response, Request, NextFunction } from 'express';
 import { BaseController } from './base.controller';
 import { CandidatesService } from '@/services/candidates.service';
-import { CandidateBody } from '@/validators/candidates';
+import { CandidateBody, Gender, CandidateType } from '@/validators/candidates';
 
 export class CandidatesController extends BaseController {
     constructor(private candidatesService: CandidatesService) {
@@ -9,9 +9,27 @@ export class CandidatesController extends BaseController {
     }
 
     getAll = (req: Request, res: Response, next: NextFunction): void => {
-        const { cursor, pageSize } = req.query as Record<string, string>;
+        const {
+            cursor,
+            pageSize,
+            gender,
+            candidateType,
+            politicalParty,
+            vicinity,
+            district,
+            division,
+        } = req.query as Record<string, string>;
         this.handleRequest(req, res, next, async () => {
-            return await this.candidatesService.getAll(cursor, pageSize);
+            return await this.candidatesService.getAll(
+                cursor,
+                pageSize,
+                gender as Gender,
+                candidateType as CandidateType,
+                politicalParty,
+                vicinity,
+                district,
+                division,
+            );
         });
     };
 
