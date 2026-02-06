@@ -10,7 +10,6 @@ export class NewsController extends BaseController {
 
     getAll = (req: Request, _res: Response, _next: NextFunction): void => {
         const { page, pageSize, tag } = req.query as Record<string, string>;
-        console.log(req.query);
         this.handleRequest(req, _res, _next, async () => {
             return await this.newsService.getAll(page, pageSize, tag);
         });
