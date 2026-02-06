@@ -49,6 +49,16 @@ app.use('/api/news', cache({ duration: 300 }));
 app.use('/api/events', cache({ duration: 300 }));
 app.use('/api/candidates', cache({ duration: 300 }));
 
+// Health Check
+app.get('/health-check', (_req, res) => {
+    res.json({
+        status: 'ok',
+        timestamp: new Date(),
+        uptime: process.uptime(),
+        memoryUsage: process.memoryUsage(),
+    });
+});
+
 // Catch all unknown routes
 app.use(notFoundHandler);
 
