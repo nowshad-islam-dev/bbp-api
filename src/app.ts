@@ -8,7 +8,7 @@ import { compressionMiddleware } from './middlewares/performance';
 import { loggingMiddleware } from './middlewares/loggingMiddleware';
 import { notFoundHandler } from './middlewares/notFound';
 import { errorHandler } from './middlewares/errorHandler';
-import { apiLimiter, authLimiter } from './middlewares/rateLimiter';
+import { rateLimiterMiddleware } from './middlewares/globalRateLimiter';
 import { cache } from './middlewares/cache';
 
 const app = express();
@@ -22,12 +22,17 @@ const setupMiddleware = (app: express.Application) => {
     app.use(cookieParser());
     app.use(loggingMiddleware);
 
-    // Rate limiting
-    app.use('/api/auth', authLimiter);
-    app.use('/api', apiLimiter);
+    // Global Rate limiting
+    app.use('/api', rateLimiterMiddleware);
 };
 
 setupMiddleware(app);
+
+if (ENV.NODE_ENV === 'production') {
+    app.set('trust proxy', 1); // Trust the first hop(Nginx)
+}
+// For browser requesting favicon
+app.get('/favicon.ico', (_req, res) => res.status(204).end());
 
 // Routes
 import authRouter from './routes/auth.route';

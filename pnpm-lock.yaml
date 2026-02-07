@@ -32,9 +32,6 @@ importers:
       express:
         specifier: ^5.1.0
         version: 5.1.0
-      express-rate-limit:
-        specifier: ^8.2.1
-        version: 8.2.1(express@5.1.0)
       helmet:
         specifier: ^8.1.0
         version: 8.1.0
@@ -59,6 +56,9 @@ importers:
       nodemailer:
         specifier: ^7.0.12
         version: 7.0.12
+      rate-limiter-flexible:
+        specifier: ^9.1.0
+        version: 9.1.0
       redis:
         specifier: ^5.10.0
         version: 5.10.0
@@ -1805,12 +1805,6 @@ packages:
   eventemitter3@5.0.1:
     resolution: {integrity: sha512-GWkBvjiSZK87ELrYOSESUYeVIc9mvLLf/nXalMOS5dYrgZq9o5OVkbZAVM06CVxYsCwH9BDZFPlQTlPA1j4ahA==}
 
-  express-rate-limit@8.2.1:
-    resolution: {integrity: sha512-PCZEIEIxqwhzw4KF0n7QF4QqruVTcF73O5kFKUnGOyjbCCgizBBiFaYpd/fnBLUMPw/BWw9OsiN7GgrNYr7j6g==}
-    engines: {node: '>= 16'}
-    peerDependencies:
-      express: '>= 4.11'
-
   express@5.1.0:
     resolution: {integrity: sha512-DT9ck5YIRU+8GYzzU5kT3eHGA5iL+1Zd0EutOmTE9Dtk+Tvuzd23VBU+ec7HPNSTxXYO55gPV/hq4pSBJDjFpA==}
     engines: {node: '>= 18'}
@@ -2504,6 +2498,9 @@ packages:
   range-parser@1.2.1:
     resolution: {integrity: sha512-Hrgsx+orqoygnmhFbKaHE6c296J+HTAQXoxEF6gNupROmmGJRoyzfG3ccAveqCBrwr/2yxQ5BVd/GTl5agOwSg==}
     engines: {node: '>= 0.6'}
+
+  rate-limiter-flexible@9.1.0:
+    resolution: {integrity: sha512-0jjTtKWlF4UnMLr64chsKfyQsRlT3lc6KXK2B+N8wPkw2+QMbYN6ft4jNnZuHfllKpk3R5Vr4g7EM+Ms8H1aBw==}
 
   raw-body@3.0.1:
     resolution: {integrity: sha512-9G8cA+tuMS75+6G/TzW8OtLzmBDMo8p1JRxN5AZ+LAp8uxGA8V8GZm4GQ4/N5QNQEnLmg6SS7wyuSmbKepiKqA==}
@@ -4763,11 +4760,6 @@ snapshots:
 
   eventemitter3@5.0.1: {}
 
-  express-rate-limit@8.2.1(express@5.1.0):
-    dependencies:
-      express: 5.1.0
-      ip-address: 10.0.1
-
   express@5.1.0:
     dependencies:
       accepts: 2.0.0
@@ -5515,6 +5507,8 @@ snapshots:
   queue-microtask@1.2.3: {}
 
   range-parser@1.2.1: {}
+
+  rate-limiter-flexible@9.1.0: {}
 
   raw-body@3.0.1:
     dependencies:
