@@ -1,58 +1,29 @@
 import winston from 'winston';
-import DailyRotateFile from 'winston-daily-rotate-file';
 import ENV from './env';
 
-const logLevel = ENV.NODE_ENV === 'production' ? 'info' : 'debug';
+const isProduction = ENV.NODE_ENV === 'production';
 
 const formatConfig = winston.format.combine(
     winston.format.timestamp(),
-    winston.format.json(),
     winston.format.errors({ stack: true }),
     winston.format.metadata(),
+
+    isProduction
+        ? winston.format.json()
+        : winston.format.combine(
+              winston.format.colorize(),
+              winston.format.simple(),
+          ),
 );
 
-const transports: winston.transport[] = [
-    new winston.transports.Console({
-        level: logLevel,
-        format: winston.format.combine(
-            winston.format.colorize(),
-            winston.format.simple(),
-        ),
-    }),
-];
-
-if (ENV.NODE_ENV === 'production') {
-    transports.push(
-        new DailyRotateFile({
-            filename: 'logs/error-%DATE%.log',
-            datePattern: 'YYYY-MM-DD',
-            level: 'error',
-            maxSize: '20m',
-            maxFiles: '14d',
-        }),
-        new DailyRotateFile({
-            filename: 'logs/combined-%DATE%.log',
-            datePattern: 'YYYY-MM-DD',
-            maxSize: '20m',
-            maxFiles: '14d',
-        }),
-    );
-}
-
 export const logger = winston.createLogger({
-    level: ENV.NODE_ENV === 'production' ? 'info' : 'debug',
-    format: formatConfig,
-    transports,
-});
-
-export const requestLogger = winston.createLogger({
+    level: isProduction ? 'info' : 'debug',
     format: formatConfig,
     transports: [
-        new DailyRotateFile({
-            filename: 'logs/requests-%DATE%.log',
-            datePattern: 'YYYY-MM-DD',
-            maxSize: '20m',
-            maxFiles: '14d',
-        }) as winston.transport,
+        new winston.transports.Console({
+            handleExceptions: true, // Log crashes before the process exits
+            handleRejections: true, // Log unhandled promise rejections
+        }),
     ],
+    exitOnError: false, // Don't let a logging failure kill the app
 });

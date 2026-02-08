@@ -3,7 +3,7 @@ import { validateRequest } from '@/middlewares/validateRequest';
 import { requireAuth, requireRole } from '@/middlewares/authenticate';
 import { AuthController } from '@/controllers/auth.controller';
 import { uploadSingle } from '@/middlewares/multer';
-import { verificationLimiter } from '@/middlewares/rateLimiter';
+import { createLimiter } from '@/helpers/createLimiter';
 import {
     createUserSchema,
     verifyEmailSchema,
@@ -16,7 +16,12 @@ const router = express.Router();
 const authService = new AuthService();
 const authController = new AuthController(authService);
 
-router.post('/login', validateRequest(loginSchema), authController.login);
+router.post(
+    '/login',
+    createLimiter('loginLimiter', 5, 3600, 3600),
+    validateRequest(loginSchema),
+    authController.login,
+);
 router.post(
     '/signup',
     validateRequest(createUserSchema),
@@ -24,13 +29,14 @@ router.post(
 );
 router.get(
     '/verify-email',
+    createLimiter('emailVerificationLimiter', 3, 3600, 24 * 3600), // 3 requests per hour - block for 1 day
     validateRequest(verifyEmailSchema),
     authController.verifyEmail,
 );
 
 router.post(
     '/resend-verification-email',
-    verificationLimiter,
+    createLimiter('resendEmailVerificationLimiter', 5, 3600, 24 * 3600), // 5 requests per hour - block for 1 day
     validateRequest(resendVerificationSchema),
     authController.resendVerification,
 );
@@ -41,6 +47,7 @@ router.post('/logout', requireAuth, authController.logout);
 // Admin routes
 router.post(
     '/admin/login',
+    createLimiter('adminLoginLimiter', 5, 3600, 3600),
     validateRequest(loginSchema),
     authController.adminLogin,
 );
