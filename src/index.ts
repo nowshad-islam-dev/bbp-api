@@ -9,9 +9,10 @@ async function startServer() {
     try {
         logger.info('Connecting to redis');
         await connectRedis();
-        server = app.listen(ENV.PORT, () => {
-            logger.info(`Server running at http://localhost:${ENV.PORT}`);
-        });
+        server = app.listen(ENV.PORT, '127.0.0.1'); // For production only
+        // server = app.listen(ENV.PORT, () => {
+        //     logger.info(`Server running at http://localhost:${ENV.PORT}`);
+        // });
     } catch (err) {
         logger.error('Failed to start server', err);
         process.exit(1);
